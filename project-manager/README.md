@@ -1,3 +1,11 @@
+## Todo ...
+
+> wait answer from teacher
+
+-   [x] make server on raspberry pi for receive data from pc
+-   [ ] setting venv on raspberry pi
+-   [ ] auto upload to arduino and open monitor
+
 ```
 mkdir libraries
 Makefile
