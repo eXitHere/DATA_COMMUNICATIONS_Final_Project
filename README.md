@@ -1,3 +1,10 @@
+## DO
+
+-   `git pull origin main`
+-   `git add .`
+-   `git commit -m "Added bug"`
+-   `git push origin main`
+
 ## Member
 
 ```
