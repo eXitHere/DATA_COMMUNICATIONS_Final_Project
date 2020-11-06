@@ -1,5 +1,6 @@
 /project-manager/FLASK-Server/venv
 /project-manager/FLASK-Server/__pycache__
+.vscode
 
 # ----------------------------------
 # git ignore for data science ...  |
