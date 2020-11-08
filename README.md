@@ -8,7 +8,7 @@
 ## For python project
 
 -   "! do not push venv to github" because this project coworking 3 OS -> Linux, Windows, Mac. In different os venv doesn't work. Please create on your PC. `virtualenv venv` (make sure you in root of python project)
--   before push use `pip freeze > requirements.txt` for create requirements.txt (don't forget active vene)
+-   before push use `pip freeze > requirements.txt` for create requirements.txt (don't forget active venv)
 
 ## Member
 
