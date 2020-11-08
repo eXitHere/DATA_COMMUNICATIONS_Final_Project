@@ -1,3 +1,5 @@
+![in case of fire]('./images/incaseoffire.png')
+
 ## DO
 
 -   `git pull origin main`
