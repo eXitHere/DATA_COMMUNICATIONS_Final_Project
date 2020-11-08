@@ -7,12 +7,15 @@
 -   [ ] auto upload to arduino and open monitor
 
 ```
+sudo apt install arduino-mk
 mkdir libraries
 Makefile
 make upload
 make clean
 make upload clean
 sudo apt install screen
+screen -list
+screen -X quit
 make upload monitor clean
 ```
 
