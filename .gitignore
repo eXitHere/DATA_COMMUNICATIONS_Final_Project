@@ -5,7 +5,7 @@
 # ----------------------------------
 # git ignore for data science ...  |
 # ----------------------------------
-
+PC2/venv
 docs/equations/*.aux
 docs/equations/*.log
 docs/equations/*.out
