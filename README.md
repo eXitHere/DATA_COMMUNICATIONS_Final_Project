@@ -1,4 +1,4 @@
-![in case of fire]('./images/incaseoffire.png')
+![in case of fire]('/images/incaseoffire.png')
 
 ## DO
 
