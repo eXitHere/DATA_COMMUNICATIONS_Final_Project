@@ -5,7 +5,7 @@ SoftwareSerial mySerial(10, 11);  // rx, tx
 char myName;
 char ackNo = '0';
 String allReceiving = "";
-const String STARTFLAG = "1011";
+const String STARTFLAG = "O";
 
 void flushRx(int);     //clear all data from selected serial
 void receiver();    //operate as receiving end
