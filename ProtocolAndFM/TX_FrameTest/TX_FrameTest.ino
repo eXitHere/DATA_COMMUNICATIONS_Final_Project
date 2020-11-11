@@ -79,10 +79,10 @@ void trasmitter()
     {
       String toSend = "";
       String data = textData.substring(0, 10); //Real project will be used 10 bits instead 10 chars
-      toSend += STARTFLAG;
-      toSend += receiver;
-      toSend += myName;
-      toSend += frameNo;
+      toSend += STARTFLAG;// 8 bits
+      toSend += receiver;// 8 bits
+      toSend += myName;// 8 bits
+      toSend += frameNo;// 1 bits
       if (data.length() < 10) //add padding
       {
         for (int i = data.length(); i < 10; i ++)
@@ -96,10 +96,10 @@ void trasmitter()
       for (int i = 0; i < toSend.length(); i++) {
         sum += int(toSend[i]);
       }
-      (sum % 2 == 0) ? toSend += '1' : toSend += '0';
+      (sum % 2 == 0) ? toSend += '1' : toSend += '0';// 1 bits
 
       textData = textData.substring(10);
-      (textData.length() <= 0) ? toSend += "00" : toSend += "11";//end of data?
+      (textData.length() <= 0) ? toSend += "0" : toSend += "1";//end of data? (8 bits)
       //Send data
       Serial.print("Send frame : ");
       Serial.println(frameNo);
@@ -144,23 +144,12 @@ void trasmitter()
         Serial.println();
         String receiveText = mySerial.readStringUntil('\n');
         Serial.println(receiveText);
-        /*
-        Serial.println("Receive frame");
-        Serial.print("Header    : ");
-        Serial.println(receiveText.substring(0, 20));
-        Serial.print("ACK No.   : ");
-        Serial.println(receiveText[20]);
-        Serial.print("Checking  : ");
-        Serial.println(receiveText[21]);
-        Serial.print("End flag  :");
-        Serial.println(receiveText[22]);
-        */
         sum = 0;
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 4; i++)
         {
           sum += int(receiveText[i]);
         }
-        if (sum % 2 == (receiveText[7] - '0'))
+        if (sum % 2 == (receiveText[4] - '0'))
         {
           Serial.println("Receive ACK");
           frameNo = (frameNo + 1) % 2;
