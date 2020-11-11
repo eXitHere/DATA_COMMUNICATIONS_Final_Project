@@ -39,8 +39,13 @@ void receiving()
     Serial.println(incomingText);
     bool corrup = false, resend = false;
     
+<<<<<<< HEAD
     char open_flag = incomingText[0], reciever = incomingText[1], sender = incomingText[2],
     frame_number = incomingText[3], check = incomingText[6], end_flag = incomingText[7];//extract data
+=======
+    char open_flag[0], reciever = incomingText[1], sender = incomingText[2],
+    frame_number = incomingText[3], check = incomingText[14], end_flag = incomingText[15];//extract data
+>>>>>>> 036452441d25a5f8115b7f085a93cf21d76e6f8d
 
     if (reciever == ownerName)//this frame is for me
     {
@@ -52,7 +57,11 @@ void receiving()
 //        Serial.print("Frame No. : ");
 //        Serial.println(frame_number);
         String data = "";
+<<<<<<< HEAD
         for (int i = 4; i <= 5; i++)
+=======
+        for (int i = 4; i <= 13; i++)
+>>>>>>> 036452441d25a5f8115b7f085a93cf21d76e6f8d
         {
           if (char(incomingText[i]) != '~')
             data += char(incomingText[i]);
@@ -62,7 +71,11 @@ void receiving()
 //        Serial.println(check);
 
         int bitChecker = 0;
+<<<<<<< HEAD
         for (int i = 0; i <= 5; i++)
+=======
+        for (int i = 0; i <= 13; i++)
+>>>>>>> 036452441d25a5f8115b7f085a93cf21d76e6f8d
         {
            bitChecker += int(incomingText[i]);
         }
