@@ -39,41 +39,33 @@ void receiving()
     Serial.println(incomingText);
     bool corrup = false, resend = false;
     
-    String open_flag = "";
-    for ( int i = 0; i < 4; ++i ) // Open flag
-      open_flag += char(incomingText[i]);
-    
-    char reciever = incomingText[4], sender = incomingText[5], frame_number = incomingText[6], check = incomingText[17];//extract data
-
-    String end_flag = "" + String(incomingText[18]) + String(incomingText[19]);
+    char open_flag = incomingText[0], reciever = incomingText[1], sender = incomingText[2],
+    frame_number = incomingText[3], check = incomingText[6], end_flag = incomingText[7];//extract data
 
     if (reciever == ownerName)//this frame is for me
     {
       if (frame_number == ackNo)
       {
-        Serial.print("Receive frame\nHeader : ");
-        Serial.print(open_flag);
-        Serial.println(reciever);
-        Serial.print("Frame No. : ");
-        Serial.println(frame_number);
+//        Serial.print("Receive frame\nHeader : ");
+//        Serial.print(open_flag);
+//        Serial.println(reciever);
+//        Serial.print("Frame No. : ");
+//        Serial.println(frame_number);
         String data = "";
-        for (int i = 7; i <= 16; i++)
+        for (int i = 4; i <= 5; i++)
         {
           if (char(incomingText[i]) != '~')
             data += char(incomingText[i]);
         }
-        Serial.println("Data : " + data);
-        Serial.print("Checking : ");
-        Serial.println(check);
+//        Serial.println("Data : " + data);
+//        Serial.print("Checking : ");
+//        Serial.println(check);
 
         int bitChecker = 0;
-        for (int i = 0; i <= 16; i++)
+        for (int i = 0; i <= 5; i++)
         {
            bitChecker += int(incomingText[i]);
         }
-
-        Serial.print("Bitcheck : ");
-        Serial.println(bitChecker);
         
         if ((bitChecker % 2 == 0 && check == '1') || (bitChecker % 2 == 1 && check == '0'))
         {
@@ -108,11 +100,10 @@ void receiving()
             resCheck = '1';
 
           responseAck += resCheck;
-          responseAck += "00";
+          responseAck += "0";
 
           Serial.print("Response Ack : ");
           Serial.println(responseAck);
-          Serial.println("----------------------------------\n");
 
           //send ack
           for (int i = 0; i < responseAck.length(); i++)
@@ -155,8 +146,8 @@ void receiving()
           resCheck = '1';
 
         responseAck += resCheck;
-        responseAck += "00";
-
+        responseAck += "0";
+        
         //resend ack
         for (int i = 0; i < responseAck.length(); i++)
         {
@@ -173,7 +164,7 @@ void receiving()
     }
 
     flushRx();
-    if ( end_flag == "00" and !corrup and !resend ) {
+    if ( end_flag == '0' and !corrup and !resend ) {
       ackNo = '0';
       allReceiving = "";
       Serial.print("Transmittion finished\n");
