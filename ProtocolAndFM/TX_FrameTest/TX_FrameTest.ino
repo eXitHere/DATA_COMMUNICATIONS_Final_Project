@@ -1,5 +1,7 @@
 //Test this frame design with Serial first
+//TODO: Change to send data 16 bits/frame
 #include <SoftwareSerial.h>
+#define TIMEOUT 1300
 SoftwareSerial mySerial(10, 11);  // rx, tx
 
 char myName;
@@ -21,6 +23,7 @@ void setup()
 
   myName = Serial.read();
   Serial.println(myName);
+  Serial.println("Send something by typing the destination name, then data...");
 }
 
 void loop()
@@ -78,14 +81,16 @@ void trasmitter()
     if (textData.length() > 0)
     {
       String toSend = "";
-      String data = textData.substring(0, 10); //Real project will be used 10 bits instead 10 chars
+      String data = textData.substring(0, 2); //Real project will be used 10 bits instead 10 chars
       toSend += STARTFLAG;// 8 bits
       toSend += receiver;// 8 bits
       toSend += myName;// 8 bits
       toSend += frameNo;// 1 bits
-      if (data.length() < 10) //add padding
+      
+      //data will have 16 bits (2 chars)
+      if (data.length() < 2) //add padding
       {
-        for (int i = data.length(); i < 10; i ++)
+        for (int i = data.length(); i < 2; i ++)
         {
           data += '~';
         }
@@ -98,8 +103,9 @@ void trasmitter()
       }
       (sum % 2 == 0) ? toSend += '1' : toSend += '0';// 1 bits
 
-      textData = textData.substring(10);
+      textData = textData.substring(2);
       (textData.length() <= 0) ? toSend += "0" : toSend += "1";//end of data? (8 bits)
+      
       //Send data
       Serial.print("Send frame : ");
       Serial.println(frameNo);
@@ -123,7 +129,7 @@ void trasmitter()
         long current = millis();
         while (!mySerial.available())
         {
-          if (millis() - current >= 3000)
+          if (millis() - current >= TIMEOUT)
           {
             Serial.println("Timeout");
             Serial.print("Retransmit frame: ");
@@ -140,7 +146,7 @@ void trasmitter()
         }
 
         //Read ACK
-        //Change Bit Size in production
+        //Change Bit Size in release version
         Serial.println();
         String receiveText = mySerial.readStringUntil('\n');
         Serial.println(receiveText);
