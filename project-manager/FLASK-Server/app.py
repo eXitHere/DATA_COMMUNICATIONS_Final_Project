@@ -16,7 +16,7 @@ state = 0
 
 stop_threads = False
 send_msg = ""
-ser = Serial.Serial("COM5")
+ser = Serial.Serial("COM5", 115200)
 
 string_recever = []
 
@@ -35,6 +35,7 @@ def serial_run():
                     ser.write(str.encode('{0}'.format(send_msg)))
                     send_msg = ""
                     time.sleep(1)
+                    print("Writed : ", send_msg)
                 if ser.in_waiting > 0:
                     serialString = ser.readline()
                     if serialString[0] != '\r\n':
@@ -88,8 +89,8 @@ def shutdown():
     os.kill(os.getpid(), sig)
 
 if __name__ == "__main__":
-    #x = threading.Thread(target=serial_run)
-    #x.start()
+    x = threading.Thread(target=serial_run)
+    x.start()
     try:
         app.run(host="0.0.0.0", port=5000, debug=True, use_debugger=False, use_reloader=False)
     except:
