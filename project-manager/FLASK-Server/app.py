@@ -99,4 +99,3 @@ if __name__ == "__main__":
         ser.close()
         if not ser.isOpen():
             print("User,Serial comm is closed")
-        sys.exit()
