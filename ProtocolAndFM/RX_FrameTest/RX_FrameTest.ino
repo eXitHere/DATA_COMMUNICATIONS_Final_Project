@@ -39,13 +39,8 @@ void receiving()
     Serial.println(incomingText);
     bool corrup = false, resend = false;
     
-    String open_flag = "";
-    for ( int i = 0; i < 4; ++i ) // Open flag
-      open_flag += char(incomingText[i]);
-    
-    char reciever = incomingText[4], sender = incomingText[5], frame_number = incomingText[6], check = incomingText[17];//extract data
-
-    String end_flag = "" + String(incomingText[18]) + String(incomingText[19]);
+    char open_flag[0], reciever = incomingText[1], sender = incomingText[2],
+    frame_number = incomingText[3], check = incomingText[14], end_flag = incomingText[15];//extract data
 
     if (reciever == ownerName)//this frame is for me
     {
@@ -57,7 +52,7 @@ void receiving()
         Serial.print("Frame No. : ");
         Serial.println(frame_number);
         String data = "";
-        for (int i = 7; i <= 16; i++)
+        for (int i = 4; i <= 13; i++)
         {
           if (char(incomingText[i]) != '~')
             data += char(incomingText[i]);
@@ -67,7 +62,7 @@ void receiving()
         Serial.println(check);
 
         int bitChecker = 0;
-        for (int i = 0; i <= 16; i++)
+        for (int i = 0; i <= 13; i++)
         {
            bitChecker += int(incomingText[i]);
         }
@@ -108,7 +103,7 @@ void receiving()
             resCheck = '1';
 
           responseAck += resCheck;
-          responseAck += "00";
+          responseAck += "0";
 
           Serial.print("Response Ack : ");
           Serial.println(responseAck);
@@ -155,8 +150,8 @@ void receiving()
           resCheck = '1';
 
         responseAck += resCheck;
-        responseAck += "00";
-
+        responseAck += "0";
+        
         //resend ack
         for (int i = 0; i < responseAck.length(); i++)
         {
@@ -173,7 +168,7 @@ void receiving()
     }
 
     flushRx();
-    if ( end_flag == "00" and !corrup and !resend ) {
+    if ( end_flag == '0' and !corrup and !resend ) {
       ackNo = '0';
       allReceiving = "";
       Serial.print("Transmittion finished\n");
