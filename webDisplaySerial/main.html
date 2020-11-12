@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Serial</title>
     <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="./settings.js" ></script>
     <script>
       function getFunction(i) {
         function display_in_document(e) {
@@ -44,7 +45,7 @@
             redirect: "follow",
           };
           setTimeout(function() {
-            fetch("http://localhost:5002/senddata", requestOptions)
+            fetch(`${settings.target}/senddata`, requestOptions)
             .then((response) => response.text())
             .then((result) => {
               loaddingID.style.display = "none";
