@@ -599,10 +599,11 @@ void setup() {
   camInit();
   setRes();
   setColor();
-  wrReg(0x11, 11); //Earlier it had the value: wrReg(0x11, 12); New version works better for me :) !!!!
+  wrReg(0x11, 9); //Earlier it had the value: wrReg(0x11, 12); New version works better for me :) !!!!
 }
 
 
 void loop() {
   captureImg(320, 240);
 }
+

@@ -176,6 +176,7 @@ div.textarea {
   width: 322px;
   overflow: scroll;
   transition: 1s;
+  overflow: hidden;
 }
 .status-disable input,
 .status-disable .wrapper-textarea {
