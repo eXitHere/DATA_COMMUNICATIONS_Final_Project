@@ -174,7 +174,7 @@ div.textarea {
   background-color: transparent;
   height: 100%;
   width: 322px;
-  overflow: scroll;
+  /* overflow: scroll; */
   transition: 1s;
   overflow: hidden;
 }
