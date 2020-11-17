@@ -2,6 +2,12 @@
 /project-manager/FLASK-Server/__pycache__
 /project-manager/TEST-capture
 .vscode
+# -----------------------
+# git ignore for images |
+# -----------------------
+
+ML/images/train
+ML/images/validation
 
 # ----------------------------------
 # git ignore for data science ...  |
