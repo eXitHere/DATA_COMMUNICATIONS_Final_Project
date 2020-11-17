@@ -174,10 +174,16 @@ div.textarea {
   background-color: transparent;
   height: 100%;
   width: 322px;
-  /* overflow: scroll; */
+  overflow: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   transition: 1s;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
+div.textarea::-webkit-scrollbar {
+  display: none;
+}
+
 .status-disable input,
 .status-disable .wrapper-textarea {
   background-color: rgba(84, 88, 88, 0.2);
@@ -274,7 +280,7 @@ div.textarea {
   letter-spacing: 2px;
   user-select: none;
   -webkit-user-select: none;
-  transition: color 2.0s ease-in;
+  transition: color 2s ease-in;
 }
 .footer h6:hover {
   color: sandybrown;
