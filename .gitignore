@@ -8,7 +8,8 @@
 
 ML/images/train
 ML/images/validation
-PC2/variables
+PC2/model_datacom
+PC2/model_datacom_2
 
 # ----------------------------------
 # git ignore for data science ...  |
