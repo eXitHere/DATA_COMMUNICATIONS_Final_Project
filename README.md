@@ -14,8 +14,7 @@
 
 ## Member
 
-````
-
+```
 กลุ่ม 1
 1, 22, 62010381, นายธนา ติ้งประสม, fb.com/kttkook
 2, 22, 62010345, นายธนดล สินอนันต์วณิช, fb.com/BestSinananavanich
@@ -26,9 +25,6 @@
 ```
 
 ## Class document
-
 -   [Assignment 63](https://docs.google.com/document/d/1lCAKcCvDOUd78t_YZG8W5tjDkQTTrvopiaaOMNXXE0I/edit)
 -   [How to OV7670](https://docs.google.com/document/d/1kdxclTAXJckRb7b2CWud6TY4N25vYgkQhOkC9wr5MgM/edit)
 -   [ฟังธรรมะ](https://www.youtube.com/watch?v=fz7Jxg7Hbkg)
-```
-````
