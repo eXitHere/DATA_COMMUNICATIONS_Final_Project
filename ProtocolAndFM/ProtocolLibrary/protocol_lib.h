@@ -5,7 +5,7 @@
 class ProtocolControl
 {
 public:
-  ProtocolControl(String, String);
+  ProtocolControl(String);
   ~ProtocolControl();
 
   int addTwo(int, int); //use for testing this import

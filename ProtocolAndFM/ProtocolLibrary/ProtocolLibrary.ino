@@ -1,6 +1,6 @@
 #include "protocol_lib.h"
 
-ProtocolControl protocol("A", "o");
+ProtocolControl protocol("A");
 
 void setup()
 {
