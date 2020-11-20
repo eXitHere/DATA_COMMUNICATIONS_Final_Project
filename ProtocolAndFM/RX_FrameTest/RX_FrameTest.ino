@@ -179,8 +179,8 @@ void receiving()
     if ( end_flag == '0' and !corrup and !resend ) {
       ackNo = '0';
       allReceiving = "";
-      Serial.print("Transmittion finished\n");
-      Serial.print("----------------------------------\n\n");
+      Serial.print("\n");
+      Serial.print("-------End Of Receiving----------\n\n");
     }
   }
 }

@@ -1,9 +1,11 @@
 #include "protocol_lib.h"
 
+ProtocolControl protocol("A");
+
 void setup()
 {
   Serial.begin(9600);
-  Serial.println(addTwo(5,6));
+  Serial.println(protocol.addTwo(5, 6));
 }
 
 void loop()

@@ -1,5 +1,4 @@
 //Test this frame design with Serial first
-//TODO: Change to send data 16 bits/frame
 #include <SoftwareSerial.h>
 #define TIMEOUT 1300
 SoftwareSerial mySerial(10, 11);  // rx, tx
@@ -182,7 +181,6 @@ void trasmitter()
   {
     frameNo = 0;
     textData = "";
-    completeTrasmission = 0;
     completeTrasmission = 0;
     Serial.println("-----End of Trasmission-----");
   }
