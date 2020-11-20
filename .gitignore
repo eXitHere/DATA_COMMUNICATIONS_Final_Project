@@ -6,6 +6,10 @@
 # git ignore for images |
 # -----------------------
 
+ML/venv
+*__MACOSX
+ML/model_datacom
+ML/model_datacom_2
 ML/images/train
 ML/images/validation
 PC2/model_datacom
