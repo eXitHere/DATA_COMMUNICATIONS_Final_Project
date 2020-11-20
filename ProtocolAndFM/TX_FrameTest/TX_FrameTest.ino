@@ -186,5 +186,4 @@ void trasmitter()
     completeTrasmission = 0;
     Serial.println("-----End of Trasmission-----");
   }
-
 }
