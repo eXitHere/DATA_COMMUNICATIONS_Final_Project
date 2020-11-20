@@ -168,11 +168,11 @@ void ProtocolControl::transmitter()
     
     for (int i = 0; i < framedData.length(); i++)
     {
-      //TODO: SEND FRAME WITH FSK
+      //TODO: SEND CURRENT FRAME WITH FSK
     }
 
 
-    //TODO: RECEIVE ACK FRAME FROM FM
+    //TODO: WAIT AND RECEIVE ACK FRAME FROM FM
     String ackFrame = "TEMPACKFRAME";
     while (!this->approveAckFrame(ackFrame))
     {
@@ -209,7 +209,7 @@ void ProtocolControl::receiver()
 {
   bool corrupt = false, resend = false;
   char endFlag = '1';
-  while (true)//TODO: CHECK WHILE THERE"RE INCOMING DATA
+  while (true)//TODO: WAIT FOR INCOMING DATA
   {
     String receivedFrame = decodeFM("TEMPDATA");//TODO: RECEIVE DATA FROM ANALOG AND DECODE
 
