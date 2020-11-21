@@ -1,3 +1,11 @@
+# ---------------------------
+# git ignore for production |
+# --------------------------
+/Server/venv
+/Server/ML/model_datacom_2
+/Server/ML/model_datacom
+
+
 /project-manager/FLASK-Server/venv
 /project-manager/FLASK-Server/__pycache__
 /project-manager/TEST-capture
