@@ -7,7 +7,7 @@ FM_TX* transmitter;
 void setup()
 {
   Serial.begin(115200);
-  receiver = new FM_RX(107.5);
+  receiver = new FM_RX(87.3);
   transmitter = new FM_TX();
 
   Serial.flush();
@@ -15,19 +15,23 @@ void setup()
 
 void loop()
 {
+  transmittion();
+}
+
+void transmittion() {
   if (Serial.available() > 0)
   {
     int counter = 0;
-    char inData[15];
+    char inData[30];
     String inp = Serial.readString();
-    inp += "\n";
+    //inp += "\n";
     for (int i = 0; i < inp.length(); i++)
     {
       inData[i] = inp[i];
       counter++;
     }
 
-    for ( int i = 0; i < counter - 1; ++i ) {
+    for ( int i = 0; i < counter; ++i ) {
       transmitter->sendFM(inData[i]);
     }
   }
