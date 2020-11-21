@@ -4,6 +4,7 @@
 #include<Arduino.h>
 #include"protocol_lib.h"
 
+
 ProtocolControl::ProtocolControl(String srcName)
 {
   this->srcName = srcName;
@@ -15,10 +16,6 @@ ProtocolControl::~ProtocolControl()
 {
 }
 
-int ProtocolControl::addTwo(int a, int b)
-{
-  return a + b;
-}
 
 
 String ProtocolControl::makeDataFrame(String textData, String frameNo, String ENDFLAG, String destName)
@@ -42,7 +39,7 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
   String data = textData;
   while (data.length() < 2) //Add padding: DIFF FROM OLD CODE
   {
-    data += "~";//ASCII 126
+    data += "~";//type with ASCII 126
   }
   toSend += data;
 
@@ -142,76 +139,111 @@ bool ProtocolControl::approveAckFrame(String frame)//TODO: CHANGE TO CRC
 void ProtocolControl::transmitter()
 {
   String frameNo = "0";
-  char receiver = "B";
+  String receiver = "B";
   String textData = "";
-  int completeTrasmission = 0;
 
   if (Serial.available())//Read data from serial
   {
     this->ackNo = "0";//init ackNo
     this->allReceiving = "";//clear receiver
-
-    while (!Serial.available());//wait for input
-    textData = Serial.readStringUntil('\n');
+    textData = Serial.readStringUntil('\n');//read data from serial
   }
+  bool transmitted = false;
 
   while (textData.length() > 0)
   {
+    transmitted = true;
+
     String splittedData = textData.substring(0, 2);
     String framedData = "";
     textData = textData.substring(2);
 
-    if(textData.length() > 2)
-      framedData = this->makeDataFrame(splittedData, frameNo, "1", "B");//String textData, String frameNo, String ENDFLAG, String destName
+    if (textData.length() > 2)
+      framedData = this->makeDataFrame(splittedData, frameNo, "1", receiver);//String textData, String frameNo, String ENDFLAG, String destName
     else
-      framedData = this->makeDataFrame(splittedData, frameNo, "0", "B");//Last frame
-    
+      framedData = this->makeDataFrame(splittedData, frameNo, "0", receiver);//Last frame
+
     for (int i = 0; i < framedData.length(); i++)
     {
-      //TODO: SEND CURRENT FRAME WITH FSK
+      tx.sendFM(framedData[i]);//FM transmission
     }
+    bool okAck = false;
 
-
-    //TODO: WAIT AND RECEIVE ACK FRAME FROM FM
-    String ackFrame = "TEMPACKFRAME";
-    while (!this->approveAckFrame(ackFrame))
+    while (!okAck)
     {
-      //Wait for ACK and TIMEOUT
-      long current = millis();
-      while (!true)//TODO: WHILE NOTHING ARRIVE
+      String ackFrame = "";
+
+      long tooLong = millis();
+      while (ackFrame.length() < 6)//receive and construct frame
       {
+        int temp = rx.receiveFM();//wait for 40ms return -1
+        if (temp == -1 || millis() - tooLong >= 120)
+        {
+          ackFrame = "";
+          break;
+        }
+        ackFrame += char(temp);
+        tooLong = millis();
+      }
+      if (ackFrame.equals(""))
+      {
+        continue;
+      }
+
+      long current = millis();
+      if (!this->approveAckFrame(ackFrame)) //bad ack or no ack
+      {
+        //Wait for TIMEOUT
         if (millis() - current >= TIMEOUT)
         {
           //timeout
           for (int i = 0; i < framedData.length(); i++)
           {
-            //TODO: RETRASMISSION WITH FSK
+            tx.sendFM(framedData[i]);//FM retransmission
           }
           current = millis();
         }
       }
+      else
+      {
+        okAck = true;
+      }
     }
   }
 
-  frameNo = "0";
-  textData = "";
-  completeTrasmission = 0;
-  Serial.println("-----End of Trasmission-----");
-}
-
-
-String ProtocolControl::decodeFM(String receiving)
-{
-  return receiving;
+  if (transmitted == true)
+  {
+    frameNo = "0";
+    textData = "";
+    Serial.println("-----End of Trasmission-----");
+  }
 }
 
 void ProtocolControl::receiver()
 {
   bool corrupt = false, resend = false;
   char endFlag = '1';
-  while (true)//TODO: WAIT FOR INCOMING DATA
+  bool okFrame = false;
+  
+  while (!okFrame)//TODO: WAIT FOR INCOMING DATA
   {
-    String receivedFrame = decodeFM("TEMPDATA");//TODO: RECEIVE DATA FROM ANALOG AND DECODE
+    String receivedFrame = "";
+    long tooLong = millis();
+    while (receivedFrame.length() < 8)//receive and construct frame
+    {
+      int temp = rx.receiveFM();//wait for 40ms return -1
+      if (temp == -1 || millis() - tooLong >= 120)
+      {
+        receivedFrame = "";
+        break;
+      }
+      receivedFrame += char(temp);
+      tooLong = millis();
+    }
+    if(receivedFrame.equals(""))
+    {
+      continue;
+    }
 
     char dest = receivedFrame[1];
     if (dest == this->srcName[0])
@@ -223,11 +255,11 @@ void ProtocolControl::receiver()
         {
           endFlag = receivedFrame[5];
           ackNo == "0" ? ackNo = "1" : ackNo = "0";
-          String resAckFrame = this->makeAckFrame(ackNo, "x", "B");//TODO: CHANGE VALUE
+          String resAckFrame = this->makeAckFrame(ackNo, "0", "A");//TODO: CHANGE VALUE
 
           for (int i = 0; i < resAckFrame.length(); i++)
           {
-            //TODO: SEND ACK FRAME WITH FSK
+            tx.sendFM(resAckFrame[i]);//FM Response Ack
           }
         }
         else
@@ -239,11 +271,11 @@ void ProtocolControl::receiver()
       else
       {
         Serial.println("Discard Old Frame");
-        String resAckFrame = this->makeAckFrame(ackNo, "x", "B");//TODO: CHANGE VALUE
+        String resAckFrame = this->makeAckFrame(ackNo, "0", "A");//TODO: CHANGE VALUE
         resend = !resend;
         for (int i = 0; i < resAckFrame.length(); i++)
         {
-          //TODO: SEND ACK FRAME WITH FSK
+          tx.sendFM(resAckFrame[i]);//FM Resend Response Ack
         }
 
       }
