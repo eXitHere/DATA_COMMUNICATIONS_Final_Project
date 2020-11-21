@@ -21,12 +21,13 @@ int FM_RX::receiveFM()
   uint16_t bit_check = 0;
 
   bool check_baud = false;
+  bool check_amp = false;
 
   uint32_t baud_begin = micros();
 
   while (micros() - baud_begin < 40000)
   {
-    int tmp = analogRead(A2);
+    int tmp = isPeek(analogRead(A2));
 
       if ( tmp == 1 and prev == 0 and !check_amp ) // check amplitude
       {
@@ -34,33 +35,39 @@ int FM_RX::receiveFM()
         if ( !check_baud )
         {
           baud_begin = micros();
-          bit_check++;
         }
       }
     
-      if (tmp == 1 and check_baud) {
-        if (micros() - baud_begin > 19400 ) // full baud
+      if (tmp == 0 and check_baud) {
+        if (micros() - baud_begin > 19400 )
         {
           int dt = ((int(floor((count - 2) / 3.0))) & 3);
-          uint16_t last = dt << (bit_check * 2);  // shift data
-          data |= last;                                                               // add two new bits in data
-          baud_check++;
-          if (baud_check == 4) // 8 bits
+          uint16_t last = dt << (bit_check * 2);
+          data |= last;
+
+          bit_check++;
+
+//          Serial.print(count);
+//          Serial.print(" : ");
+//          Serial.print(dt);
+//          Serial.print(" , ");
+          if (bit_check == 4) // 8 bits
           {
-            Serial.print((char)data);
-            if ( data != 0)
-              return data;
+//            Serial.print("\nAlphabets :\t");
+//            Serial.print((char)data);
+              if ( data != 0)
+                return data;
+//            Serial.println("\t" + String(char(data)) + "\n");
+//            all_data += String(char(data));
             data = 0;
-            baud_check = 0;
-            bit_check = -1;
+            bit_check = 0;
           }
-          baud_begin = micros();
           check_baud = false;
           count = 0;
         }
       }
     
-      if (tmp == 1 and prev == 0 and check_amp) {
+      if (tmp == 0 and prev == 1 and check_amp) {
         count++;
         //Serial.println(tmp);
         check_baud = true;
@@ -68,8 +75,7 @@ int FM_RX::receiveFM()
       }
       prev = tmp;
     }
-  }
-  return -1;
+    return -1;
 }
 
 int8_t FM_RX::isPeek(uint16_t val)

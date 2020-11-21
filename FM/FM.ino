@@ -7,7 +7,7 @@ FM_TX* transmitter;
 void setup()
 {
   Serial.begin(115200);
-  receiver = new FM_RX(87.3);
+  receiver = new FM_RX(107.5);
   transmitter = new FM_TX();
 
   Serial.flush();
@@ -16,6 +16,13 @@ void setup()
 void loop()
 {
   transmittion();
+  receive();
+}
+
+void receive() {
+  uint16_t data = receiver->receiveFM();
+  if (data != -1)
+    Serial.print((char)data);
 }
 
 void transmittion() {
