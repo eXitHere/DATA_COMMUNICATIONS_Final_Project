@@ -31,15 +31,17 @@ send_msg_Arduono2 = ""
 def serial_arudino2():
     global stop_threads 
     global send_msg
-    global string_recever
+    global string_recever_arduino2
     global send_msg_Arduono2
     if not serial_Arduino2.isOpen():
         serial_Arduino2.open()
     try:
         if serial_Arduino2.isOpen():
             serialString = ""
-            while(True):
+            while True:
+                #print("In thread!")
                 if send_msg_Arduono2 != "":
+                    #print("Writed", send_msg_Arduono2)
                     serial_Arduino2.write(str.encode('{0}'.format(send_msg_Arduono2)))
                     send_msg_Arduono2 = ""
                 if serial_Arduino2.in_waiting > 0:
@@ -50,9 +52,10 @@ def serial_arudino2():
                 if stop_threads:
                     break
 
-    except KeyboardInterrupt:
-        pass
+    except:
+        print("Fuck!")
     finally:
+        print("Something wrong!")
         serial_Arduino2.close()
         if not serial_Arduino2.isOpen():
             print("Program,Serial comm is closed")
@@ -61,6 +64,7 @@ def serial_arudino2():
 def senddata():
     global send_msg_Arduono2
     command = request.get_json()['data']
+    print(command, len(command))
     if command == 'TEST':
         travel_capture()
     else:
@@ -110,33 +114,35 @@ def travel_capture():
     global send_msg_Arduono2
     global serial_Arduino3
     DEGREE = ["L", "M", "R"]
-    for x in DEGREE:
-        send_msg_Arduono2 = x
-        for i in range(5):
-            read_image(serial_Arduino3)
+    ans = []
+    for j in range(3):
+        send_msg_Arduono2 = DEGREE[j]
+        time.sleep(3)
+        ans.append(process_with_two(serial_Arduino3, DEGREE[j]))
+    print(ans)
 
 def init_Camera():
     global serial_Arduino3
     # Flush 5 image
-    for j in range(5):
+    for j in range(4):
         print("Flush ", j+1)
         flush_image(serial_Arduino3)
-        time.sleep(1)
 
 def serial_arudino3():
-    init_Camera()
+    #init_Camera()
+    pass
 
 if __name__ == "__main__":
     loadConfig()
     init_Serial()
-    thread_Serial3 = threading.Thread(target=serial_arudino2)
-    thread_Serial2 = threading.Thread(target=serial_arudino3)
+    thread_Serial3 = threading.Thread(target=serial_arudino3)
+    thread_Serial2 = threading.Thread(target=serial_arudino2)
     thread_Serial3.start()
     thread_Serial2.start()
     try:
         app.run(host="0.0.0.0", port=5000, debug=True, use_debugger=False, use_reloader=False)
     except:
-        pass
+        print("Error!")
     finally:
         stop_threads = True
         if not serial_Arduino2.isOpen():
