@@ -16,7 +16,7 @@ class FM_RX
     int receiveFM();
 
   private:
-    TEA5767 radio;
+    TEA5767* radio;
 
     int8_t isPeek(uint16_t);
 };

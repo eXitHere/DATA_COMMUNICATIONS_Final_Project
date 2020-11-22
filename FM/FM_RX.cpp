@@ -8,7 +8,9 @@ FM_RX::FM_RX(float freq)
   cbi(ADCSRA, ADPS0);
 
   Wire.begin();
-  radio.set_frequency(freq);
+  radio = new TEA5767(freq);
+  radio->init();
+  radio->set_frequency(freq);
 
 }
 
