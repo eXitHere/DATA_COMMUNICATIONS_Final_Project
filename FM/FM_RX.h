@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <TEA5767Radio.h>
+#include <TEA5767.h>
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -16,7 +16,7 @@ class FM_RX
     int receiveFM();
 
   private:
-    TEA5767Radio radio = TEA5767Radio();
+    TEA5767 radio;
 
     int8_t isPeek(uint16_t);
 };

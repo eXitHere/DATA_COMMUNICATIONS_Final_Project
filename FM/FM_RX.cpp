@@ -8,7 +8,7 @@ FM_RX::FM_RX(float freq)
   cbi(ADCSRA, ADPS0);
 
   Wire.begin();
-  radio.setFrequency(freq);
+  radio.set_frequency(freq);
 
 }
 
