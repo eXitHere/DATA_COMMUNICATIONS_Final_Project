@@ -3,10 +3,10 @@
 #include<Adafruit_MCP4725.h>
 #include<Adafruit_ADS1015.h>
 
-#define NUM_SAMPLE 8
+#define NUM_SAMPLE 4
 #define NUM_FREQ 4
 #define FREQ_DIFF 100
-#define DEF_FREQ 1700
+#define DEF_FREQ 2500
 
 class FM_TX
 {

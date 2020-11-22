@@ -13,7 +13,7 @@ class FM_RX
 {
   public:
     FM_RX(float freq);
-    int receiveFM(unsigned long timeout = 2000);
+    int receiveFM();
 
   private:
     TEA5767Radio radio = TEA5767Radio();
