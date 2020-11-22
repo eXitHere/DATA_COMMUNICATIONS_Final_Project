@@ -15,19 +15,30 @@ void setup()
 
 void loop()
 {
+  transmittion();
+  receive();
+}
+
+void receive() {
+  uint16_t data = receiver->receiveFM();
+  if (data != -1)
+    Serial.print((char)data);
+}
+
+void transmittion() {
   if (Serial.available() > 0)
   {
     int counter = 0;
-    char inData[15];
+    char inData[30];
     String inp = Serial.readString();
-    inp += "\n";
+    //inp += "\n";
     for (int i = 0; i < inp.length(); i++)
     {
       inData[i] = inp[i];
       counter++;
     }
 
-    for ( int i = 0; i < counter - 1; ++i ) {
+    for ( int i = 0; i < counter; ++i ) {
       transmitter->sendFM(inData[i]);
     }
   }

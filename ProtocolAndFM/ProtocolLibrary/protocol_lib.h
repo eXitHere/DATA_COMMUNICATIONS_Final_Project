@@ -2,13 +2,16 @@
 #define PROTOCOL_LIB_H
 
 #include <Arduino.h>
+
+#include "FM_RX.h"
+#include "FM_TX.h"
+
+
 class ProtocolControl
 {
 public:
   ProtocolControl(String);
   ~ProtocolControl();
-
-  int addTwo(int, int); //use for testing this import
 
   String makeDataFrame(String textData, String frameNo, String ENDFLAG = "X", String destName = "B");
   bool approveDataFrame(String);
@@ -19,7 +22,6 @@ public:
   void transmitter();
   void receiver();
 
-  String decodeFM(String);
 
 private:
   String srcName;
@@ -27,6 +29,9 @@ private:
   String allReceiving;
   String STARTFLAG;
   const int TIMEOUT = 2000;
+
+  FM_RX rx = FM_RX(87.5);//TODO: CHANGE FREQ
+  FM_TX tx = FM_TX();
 };
 
 #endif PROTOCOL_LIB_H
