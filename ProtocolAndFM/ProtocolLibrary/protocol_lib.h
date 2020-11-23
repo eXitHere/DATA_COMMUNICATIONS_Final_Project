@@ -7,11 +7,10 @@
 #include "FM_TX.h"
 #include "CRC8.h"
 
-
 class ProtocolControl
 {
 public:
-  ProtocolControl(String srcName,String destName,float freq);
+  ProtocolControl(String srcName, String destName, float freq);
   ~ProtocolControl();
 
   String makeDataFrame(String textData, String frameNo, String ENDFLAG, String destName);
@@ -23,7 +22,6 @@ public:
   void transmitter();
   void receiver();
 
-
 private:
   String srcName, destName;
   String ackNo;
@@ -32,9 +30,9 @@ private:
   const int TIMEOUT = 2000;
   const int BACKOFF = 7;
 
-  FM_RX* rx;
-  FM_TX* tx;
-  CRC8* crc8;
+  FM_RX *rx;
+  FM_TX *tx;
+  CRC8 *crc8;
 };
 
 #endif PROTOCOL_LIB_H
