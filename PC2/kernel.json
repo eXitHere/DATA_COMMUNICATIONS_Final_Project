@@ -1,6 +1,6 @@
 {
     "argv": [
-     "./venv/bin/python",
+     "./venv/Scripts/python",
      "-m",
      "ipykernel_launcher",
      "-f",
