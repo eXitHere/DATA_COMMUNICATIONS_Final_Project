@@ -51,14 +51,6 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
   toSend += char(checksum);
-  /*
-    int sum = 0;
-    for (int i = 0; i < toSend.length(); i++)
-    {
-    sum += int(toSend[i]);
-    }
-    (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
-  */
   toSend += ENDFLAG;
 
   return toSend;
@@ -116,14 +108,6 @@ String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destNa
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
   toSend += char(checksum);
-  /*
-    int sum = 0;
-    for (int i = 0; i < toSend.length(); i++)
-    {
-    sum += int(toSend[i]);
-    }
-    (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
-  */
   toSend += ENDFLAG;
 
   return toSend;
@@ -194,7 +178,6 @@ void ProtocolControl::transmitter()
       {
         tx->sendFM(framedData[i]);//FM transmission
       }
-      delay(150);
 
 
       long current = millis();
@@ -202,14 +185,9 @@ void ProtocolControl::transmitter()
       while (!okAck)
       {
         Serial.println("ACK Not Okay: Wait for ACK");
-        String ackFrame = "";
+        String ackFrame = rx->receiveFM();
 
         long tooLong = millis();
-
-        while (ackFrame.length() < 6)//receive and construct frame
-        {
-          ackFrame = rx->receiveFM();
-        }
         
         /*if (ackFrame.equals("") && millis() - current < TIMEOUT)
         {
