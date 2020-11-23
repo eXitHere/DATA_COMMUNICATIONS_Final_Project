@@ -174,12 +174,13 @@ void ProtocolControl::transmitter()
       {
         tx->sendFM(framedData[i]);//FM transmission
       }
-      bool okAck = false;
+      
 
       long current = millis();
+      bool okAck = false;
       while (!okAck)
       {
-        Serial.println("Ack Not Okay");
+        Serial.println("ACK Not Okay: Wait for ACK");
         String ackFrame = "";
 
         long tooLong = millis();
@@ -188,7 +189,7 @@ void ProtocolControl::transmitter()
         {
           int temp = rx->receiveFM();//wait for 40ms return -1 if nothing
           Serial.println(temp);
-          if (temp == -1 || millis() - tooLong >= 120)
+          if (temp == -1 || millis() - tooLong >= 80)
           {
             ackFrame = "";
             break;
@@ -207,7 +208,7 @@ void ProtocolControl::transmitter()
 
         if (backoff > this->BACKOFF)
         {
-          Serial.println("Maximum Back Off");
+          Serial.println("Maximum Back Off: Stop trasmitting");
           return;
         }
 
@@ -228,7 +229,7 @@ void ProtocolControl::transmitter()
         }
         else
         {
-          Serial.println("Good Ack");
+          Serial.println("Good Ack: Next Frame");
           okAck = true;
         }
       }
@@ -250,18 +251,17 @@ void ProtocolControl::receiver()
   bool okFrame = false;
   char endFlag = '1';
   const long TOOLONG = 2000;
-  
+
   int temp = rx->receiveFM();
 
   if (temp != -1)//Wait for incoming data
   {
-    Serial.println("Start Receiving ");
-    Serial.print(temp);
+    Serial.println("Start Receiving");
+    //Serial.print(temp);
     long timer = millis();
-    
-    while (endFlag != '0' && millis()-timer <= TOOLONG)
+
+    while (endFlag != '0' && millis() - timer <= TOOLONG)
     {
-      Serial.println("Still Receiving");
       String receivedFrame = "";
       long tooLong = millis();
       while (receivedFrame.length() < 8)//receive and construct frame
@@ -280,16 +280,16 @@ void ProtocolControl::receiver()
         continue;
       }
 
-      char dest = receivedFrame[1];
-      if (dest == this->srcName[0])
+      if (this->approveDataFrame(receivedFrame))
       {
-        char frameNumber = receivedFrame[3];
-        if (frameNumber == ackNo[0])
+        char dest = receivedFrame[1];
+        if (dest == this->srcName[0])
         {
-          if (this->approveDataFrame(receivedFrame))
+          char frameNumber = receivedFrame[3];
+          if (frameNumber == this->ackNo[0])
           {
-            this->allReceiving += receivedFrame.substring(4,6);
-            Serial.println("OK: "+allReceiving);
+            this->allReceiving += receivedFrame.substring(4, 6);
+            Serial.println("OK: " + allReceiving);
             endFlag = receivedFrame[5];
             ackNo == "0" ? ackNo = "1" : ackNo = "0";
             String resAckFrame = this->makeAckFrame(ackNo, "0", destName);//TODO: CHANGE VALUE
@@ -302,35 +302,36 @@ void ProtocolControl::receiver()
           }
           else
           {
-            Serial.println("Corrupt Frame");
-            corrupt = !corrupt;
-          }
-        }
-        else
-        {
-          Serial.println("Discard Old Frame");
-          String resAckFrame = this->makeAckFrame(ackNo, "0", this->destName);//TODO: CHANGE VALUE
-          resend = !resend;
-          for (int i = 0; i < resAckFrame.length(); i++)
-          {
-            tx->sendFM(resAckFrame[i]);//FM Resend Response Ack
+            Serial.println("Discard Old Frame");
+            String resAckFrame = this->makeAckFrame(ackNo, "0", this->destName);//TODO: CHANGE VALUE
+            resend = !resend;
+            for (int i = 0; i < resAckFrame.length(); i++)
+            {
+              tx->sendFM(resAckFrame[i]);//FM Resend Response Ack
+            }
           }
         }
       }
+      else
+      {
+        Serial.println("Corrupted Frame");
+        corrupt = !corrupt;
+      }
     }
+    
     if (endFlag == '0' && !corrupt && !resend)
     {
-      ackNo = "0";
-      allReceiving = "";
-      Serial.print("\n");
-      Serial.print("-------End Of Receiving----------\n\n");
-    }
-    else if(millis() - timer > TOOLONG)
-    {
-      Serial.println("Too Long, Stop Receiving: "+this->allReceiving);
+      Serial.println(this->allReceiving);
       ackNo = "0";
       this->allReceiving = "";
-      
+      Serial.print("-------End Of Receiving----------\n\n");
+    }
+    else if (millis() - timer > TOOLONG)
+    {
+      Serial.println("Too Long, Stop Receiving: " + this->allReceiving);
+      ackNo = "0";
+      this->allReceiving = "";
+
     }
   }
 }
