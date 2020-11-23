@@ -4,13 +4,15 @@
 #include<Arduino.h>
 #include"protocol_lib.h"
 
-
-ProtocolControl::ProtocolControl(String srcName)
+ProtocolControl::ProtocolControl(String srcName, String destName, float freq)
 {
   this->srcName = srcName;
+  this->destName = destName;
   this->STARTFLAG = "o";
   this->allReceiving = "";
   this->ackNo = "0";
+  this->rx = new FM_RX(freq);
+  this->tx = new FM_TX();
   Serial.println("Init completed");
 }
 ProtocolControl::~ProtocolControl()
@@ -140,7 +142,7 @@ bool ProtocolControl::approveAckFrame(String frame)//TODO: CHANGE TO CRC
 void ProtocolControl::transmitter()
 {
   String frameNo = "0";
-  String receiver = "B";
+  String receiver = this->destName;
   String textData = "";
   int backoff = 0;
 
@@ -170,7 +172,7 @@ void ProtocolControl::transmitter()
 
       for (int i = 0; i < framedData.length(); i++)
       {
-        tx.sendFM(framedData[i]);//FM transmission
+        tx->sendFM(framedData[i]);//FM transmission
       }
       bool okAck = false;
 
@@ -184,7 +186,7 @@ void ProtocolControl::transmitter()
 
         while (ackFrame.length() < 6)//receive and construct frame
         {
-          int temp = rx.receiveFM();//wait for 40ms return -1 if nothing
+          int temp = rx->receiveFM();//wait for 40ms return -1 if nothing
           Serial.println(temp);
           if (temp == -1 || millis() - tooLong >= 120)
           {
@@ -219,7 +221,7 @@ void ProtocolControl::transmitter()
             //timeout
             for (int i = 0; i < framedData.length(); i++)
             {
-              tx.sendFM(framedData[i]);//FM retransmission
+              tx->sendFM(framedData[i]);//FM retransmission
             }
             current = millis();
           }
@@ -249,7 +251,7 @@ void ProtocolControl::receiver()
   char endFlag = '1';
   const long TOOLONG = 2000;
   
-  int temp = rx.receiveFM();
+  int temp = rx->receiveFM();
 
   if (temp != -1)//Wait for incoming data
   {
@@ -264,7 +266,7 @@ void ProtocolControl::receiver()
       long tooLong = millis();
       while (receivedFrame.length() < 8)//receive and construct frame
       {
-        int temp = rx.receiveFM();//wait for 40ms return -1
+        int temp = rx->receiveFM();//wait for 40ms return -1
         if (temp == -1 || millis() - tooLong >= 80)
         {
           receivedFrame = "";
@@ -290,11 +292,11 @@ void ProtocolControl::receiver()
             Serial.println("OK: "+allReceiving);
             endFlag = receivedFrame[5];
             ackNo == "0" ? ackNo = "1" : ackNo = "0";
-            String resAckFrame = this->makeAckFrame(ackNo, "0", "A");//TODO: CHANGE VALUE
+            String resAckFrame = this->makeAckFrame(ackNo, "0", destName);//TODO: CHANGE VALUE
             Serial.println(resAckFrame);
             for (int i = 0; i < resAckFrame.length(); i++)
             {
-              tx.sendFM(resAckFrame[i]);//FM Response Ack
+              tx->sendFM(resAckFrame[i]);//FM Response Ack
             }
             timer = millis();
           }
@@ -307,11 +309,11 @@ void ProtocolControl::receiver()
         else
         {
           Serial.println("Discard Old Frame");
-          String resAckFrame = this->makeAckFrame(ackNo, "0", "A");//TODO: CHANGE VALUE
+          String resAckFrame = this->makeAckFrame(ackNo, "0", this->destName);//TODO: CHANGE VALUE
           resend = !resend;
           for (int i = 0; i < resAckFrame.length(); i++)
           {
-            tx.sendFM(resAckFrame[i]);//FM Resend Response Ack
+            tx->sendFM(resAckFrame[i]);//FM Resend Response Ack
           }
         }
       }
