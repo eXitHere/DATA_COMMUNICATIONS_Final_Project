@@ -13,7 +13,7 @@ class FM_RX
 {
   public:
     FM_RX(float freq);
-    int receiveFM();
+    String receiveFM();
 
   private:
     TEA5767* radio;

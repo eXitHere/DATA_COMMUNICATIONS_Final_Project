@@ -1,6 +1,3 @@
-//https://github.com/dwblair/arduino_crc8 DOWNLOAD THIS LIB FOR CRC8
-
-
 #include<Arduino.h>
 #include"protocol_lib.h"
 
@@ -49,18 +46,18 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
   toSend += data;
 
   //Trailer: CRC
-  int str_len = toSend.length()+1;
+  int str_len = toSend.length() + 1;
   unsigned char char_array[str_len]; // prepare a character array (the buffer)
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
   toSend += char(checksum);
   /*
-  int sum = 0;
-  for (int i = 0; i < toSend.length(); i++)
-  {
+    int sum = 0;
+    for (int i = 0; i < toSend.length(); i++)
+    {
     sum += int(toSend[i]);
-  }
-  (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
+    }
+    (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
   */
   toSend += ENDFLAG;
 
@@ -78,7 +75,7 @@ bool ProtocolControl::approveDataFrame(String frame)//TODO: CHANGE TO CRC
     return false;
   }
 
-  String toCheck = frame.substring(0,6);
+  String toCheck = frame.substring(0, 6);
   int str_len = toCheck.length() + 1; // calculate length of message (with one extra character for the null terminator)
   unsigned char char_array[str_len]; // prepare a character array (the buffer)
   toCheck.toCharArray(char_array, str_len); // copy it over
@@ -114,18 +111,18 @@ String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destNa
   toSend += ackNo;
 
   //Trailer: CRC
-  int str_len = toSend.length()+1;
+  int str_len = toSend.length() + 1;
   unsigned char char_array[str_len]; // prepare a character array (the buffer)
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
   toSend += char(checksum);
   /*
-  int sum = 0;
-  for (int i = 0; i < toSend.length(); i++)
-  {
+    int sum = 0;
+    for (int i = 0; i < toSend.length(); i++)
+    {
     sum += int(toSend[i]);
-  }
-  (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
+    }
+    (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
   */
   toSend += ENDFLAG;
 
@@ -144,7 +141,7 @@ bool ProtocolControl::approveAckFrame(String frame)//TODO: CHANGE TO CRC
     return false;
   }
 
-  String toCheck = frame.substring(0,4);
+  String toCheck = frame.substring(0, 4);
   int str_len = toCheck.length() + 1; // calculate length of message (with one extra character for the null terminator)
   unsigned char char_array[str_len]; // prepare a character array (the buffer)
   toCheck.toCharArray(char_array, str_len); // copy it over
@@ -197,6 +194,7 @@ void ProtocolControl::transmitter()
       {
         tx->sendFM(framedData[i]);//FM transmission
       }
+      delay(150);
 
 
       long current = millis();
@@ -210,18 +208,7 @@ void ProtocolControl::transmitter()
 
         while (ackFrame.length() < 6)//receive and construct frame
         {
-          int temp = rx->receiveFM();//wait for 40ms return -1 if nothing
-          Serial.println(temp);
-          if (temp == -1 || millis() - tooLong >= 80)
-          {
-            ackFrame = "";
-            break;
-          }
-          else
-          {
-            ackFrame += char(temp);
-            tooLong = millis();
-          }
+          ackFrame = rx->receiveFM();
         }
         if (ackFrame.equals("") && millis() - current < TIMEOUT)
         {
@@ -276,22 +263,23 @@ void ProtocolControl::receiver()
   static const long TOOLONG = 10000;
   long timer = millis();
 
-  uint16_t temp = rx->receiveFM();
+  String receivedFrame = "";
+  //uint16_t temp = rx->receiveFM();
+  receivedFrame = rx->receiveFM();
 
-  if (temp != -1)//Wait for incoming data then start receiving
+  if (!receivedFrame.equals(""))//Wait for incoming data then start receiving
   {
-    String receivedFrame = "";
-    receivedFrame += char(temp);
+
     //Serial.println("Start Receiving");
     //Serial.println(String(char(temp)) + " " + String(temp));
     timer = millis();
 
     while (millis() - timer <= TOOLONG)
     {
-
-      long tooLong = millis();
-      while (receivedFrame.length() < 8)//receive and construct frame
-      {
+      /*
+        long tooLong = millis();
+        while (receivedFrame.length() < 8)//receive and construct frame
+        {
         int temp = -1;
         while (temp == -1)
         {
@@ -318,18 +306,18 @@ void ProtocolControl::receiver()
           break;
         }
 
-      }
-      if (receivedFrame.equals(""))
-      {
+        }
+        if (receivedFrame.equals(""))
+        {
         continue;
-      }
+        }*/
 
       //Serial.println(receivedFrame);
 
 
-      String DUMMYFRAME = "oAB0xy" + String(char(206)) + "0";//testing
+      //String DUMMYFRAME = "oAB0xy" + String(char(206)) + "0";//testing
       bool x = this->approveDataFrame(receivedFrame);//testing
-      receivedFrame = DUMMYFRAME;//testing
+      //receivedFrame = DUMMYFRAME;//testing
       Serial.println(x);
       if (x)
       {
@@ -374,13 +362,15 @@ void ProtocolControl::receiver()
             }
           }
         }
+        timer = millis();
       }
       else
       {
         Serial.println("Corrupted Frame: " + String(receivedFrame));
         corrupt = !corrupt;
+        receivedFrame = rx->receiveFM();
       }
-      timer = millis();
+      
     }
 
     if (millis() - timer > TOOLONG)
@@ -406,13 +396,16 @@ void ProtocolControl::stopAndWaitARQWrapper()
   this->receiver();
 }
 
-void ProtocolControl::stopAndWaitWrapper()
-{
+
+/*
+  //TODO: CODE THIS AS FALLBACK
+  void ProtocolControl::stopAndWaitWrapper()
+  {
   this->sw_transmitter();
   this->sw_receiver();
-}
-void ProtocolControl::sw_transmitter()
-{
+  }
+  void ProtocolControl::sw_transmitter()
+  {
   String frameNo = "0";
   String receiver = this->destName;
   String textData = "";
@@ -447,13 +440,14 @@ void ProtocolControl::sw_transmitter()
       {
         temp = rx->receiveFM();
       }while(temp == -1);
-      
+
     }
   }
 
 
-}
-void ProtocolControl::sw_receiver()
-{
+  }
+  void ProtocolControl::sw_receiver()
+  {
 
-}
+  }
+*/

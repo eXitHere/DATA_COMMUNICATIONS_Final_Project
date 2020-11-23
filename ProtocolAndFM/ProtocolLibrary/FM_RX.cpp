@@ -14,7 +14,7 @@ FM_RX::FM_RX(float freq)
 
 }
 
-int FM_RX::receiveFM()
+String FM_RX::receiveFM()
 {
   int prev = 0;
   int count = 0;
@@ -26,6 +26,8 @@ int FM_RX::receiveFM()
   bool check_amp = false;
 
   uint32_t baud_begin = micros();
+
+  String message = "";
 
   while (micros() - baud_begin < 40000)
   {
@@ -58,7 +60,7 @@ int FM_RX::receiveFM()
 //            Serial.print("\nAlphabets :\t");
 //            Serial.print((char)data);
               if ( data != 0)
-                return data;
+                message += char(data);
 //            Serial.println("\t" + String(char(data)) + "\n");
 //            all_data += String(char(data));
             data = 0;
@@ -77,7 +79,7 @@ int FM_RX::receiveFM()
       }
       prev = tmp;
     }
-    return -1;
+    return message;
 }
 
 int8_t FM_RX::isPeek(uint16_t val)
