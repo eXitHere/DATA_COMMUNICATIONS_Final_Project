@@ -87,3 +87,66 @@ int8_t FM_RX::isPeek(uint16_t val)
   else
     return 0;
 }
+
+
+String FM_RX::receiveStringFM(int maxLength)//Return data string (Empty string if nothing arrive)
+{
+  int prev = 0;
+  int count = 0;
+
+  uint16_t data = 0;
+  uint16_t bit_check = 0;
+
+  bool check_baud = false;
+  bool check_amp = false;
+
+  uint32_t baud_begin = micros();
+
+  String message = "";
+
+  while (micros() - baud_begin < 40000)
+  {
+    int tmp = isPeek(analogRead(A2));
+
+      if ( tmp == 1 and prev == 0 and !check_amp ) // check amplitude
+      {
+        check_amp = true; // is first max amplitude in that baud
+        if ( !check_baud )
+        {
+          baud_begin = micros();
+        }
+      }
+    
+      if (tmp == 0 and check_baud) {
+        if (micros() - baud_begin > 19400 )
+        {
+          int dt = ((int(floor((count - 2) / 3.0))) & 3);
+          uint16_t last = dt << (bit_check * 2);
+          data |= last;
+
+          bit_check++;
+
+          if (bit_check == 4) // 8 bits
+          {
+              if (data != 0)
+                message += char(data);
+              if(message.length() == maxLength)
+                break;
+            data = 0;
+            bit_check = 0;
+          }
+          check_baud = false;
+          count = 0;
+        }
+      }
+    
+      if (tmp == 0 and prev == 1 and check_amp) {
+        count++;
+        //Serial.println(tmp);
+        check_baud = true;
+        check_amp = false;
+      }
+      prev = tmp;
+    }
+    return message;
+}
