@@ -13,6 +13,7 @@ ProtocolControl::ProtocolControl(String srcName, String destName, float freq)
   this->ackNo = "0";
   this->rx = new FM_RX(freq);
   this->tx = new FM_TX();
+  this->crc8 = new CRC8();
   Serial.println("Init completed");
 }
 ProtocolControl::~ProtocolControl()
@@ -46,13 +47,14 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
   }
   toSend += data;
 
-  //Trailer
-  int sum = 0;
-  for (int i = 0; i < toSend.length(); i++)
-  {
-    sum += int(toSend[i]);
-  }
-  (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
+  //Trailer: CRC8
+  int str_len = toSend.length() + 1;
+  unsigned char char_array[str_len]; // prepare a character array (the buffer)
+  toSend.toCharArray(char_array, str_len); // copy it over
+  uint8_t checksum = crc8->get_crc8(char_array, str_len);
+  
+  toSend += char(checksum);
+  
   toSend += ENDFLAG;
 
   return toSend;
@@ -67,13 +69,13 @@ bool ProtocolControl::approveDataFrame(String frame)//TODO: CHANGE TO CRC
     return false;
   }
 
-  int sum = 0;
-  for (int i = 0; i < 6; i++)
-  {
-    sum += int(frame[i]);
-  }
+  String toCheck = frame.substring(0, 6);
+  int str_len = toCheck.length() + 1; // calculate length of message (with one extra character for the null terminator)
+  unsigned char char_array[str_len]; // prepare a character array (the buffer)
+  toCheck.toCharArray(char_array, str_len); // copy it over
+  uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  if (sum % 2 == int(frame[6] - '0'))
+  if (char(checksum) == frame[6])
   {
     return true;
   }
@@ -101,13 +103,13 @@ String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destNa
   //Ack Number
   toSend += ackNo;
 
-  //Trailer
-  int sum = 0;
-  for (int i = 0; i < toSend.length(); i++)
-  {
-    sum += int(toSend[i]);
-  }
-  (sum % 2 == 0) ? toSend += "1" : toSend += "0";// parity bit-ish
+  //Trailer: CRC
+  int str_len = toSend.length() + 1;
+  unsigned char char_array[str_len]; // prepare a character array (the buffer)
+  toSend.toCharArray(char_array, str_len); // copy it over
+  uint8_t checksum = crc8->get_crc8(char_array, str_len);
+  toSend += char(checksum);
+  
   toSend += ENDFLAG;
 
   return toSend;
@@ -123,13 +125,13 @@ bool ProtocolControl::approveAckFrame(String frame)//TODO: CHANGE TO CRC
     return false;
   }
 
-  int sum = 0;
-  for (int i = 0; i < 4; i++)
-  {
-    sum += int(frame[i]);
-  }
+  String toCheck = frame.substring(0, 4);
+  int str_len = toCheck.length() + 1; // calculate length of message (with one extra character for the null terminator)
+  unsigned char char_array[str_len]; // prepare a character array (the buffer)
+  toCheck.toCharArray(char_array, str_len); // copy it over
+  uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  if (sum % 2 == int(frame[4] - '0'))
+  if (char(checksum) == frame[4])
   {
     return true;
   }

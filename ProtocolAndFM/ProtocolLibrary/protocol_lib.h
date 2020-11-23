@@ -5,6 +5,7 @@
 
 #include "FM_RX.h"
 #include "FM_TX.h"
+#include "CRC8.h"
 
 
 class ProtocolControl
@@ -33,6 +34,7 @@ private:
 
   FM_RX* rx;
   FM_TX* tx;
+  CRC8* crc8;
 };
 
 #endif PROTOCOL_LIB_H
