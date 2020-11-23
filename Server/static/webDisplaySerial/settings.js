@@ -1,3 +1,3 @@
 const settings = {
-    target: 'http://192.168.88.10:5000'
+    target: 'http://localhost:5000'
 };

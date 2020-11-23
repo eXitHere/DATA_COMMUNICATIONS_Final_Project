@@ -7,9 +7,10 @@
 
 void setup() {
   initCamera(0x80 | 3);
+  //initCamera(12);
 }
 
 
 void loop() {
-  capture(120, 120);
+  capture(160, 120);
 }
