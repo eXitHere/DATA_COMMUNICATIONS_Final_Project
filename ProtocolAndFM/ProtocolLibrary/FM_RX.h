@@ -14,6 +14,7 @@ class FM_RX
   public:
     FM_RX(float freq);
     int receiveFM();
+    String receiveStringFM(int maxLength);
 
   private:
     TEA5767* radio;
