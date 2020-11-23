@@ -34,7 +34,7 @@ void FM_TX::sendFM(char in)
 {
   transmit(in);
   setVoltage(2047);
-  delay(250);
+  //delay(250);
 }
 
 void FM_TX::transmit(char in)

@@ -5,6 +5,7 @@
 
 #include "FM_RX.h"
 #include "FM_TX.h"
+#include "CRC8.h"
 
 
 class ProtocolControl
@@ -19,8 +20,13 @@ public:
   String makeAckFrame(String ackNo, String ENDFLAG, String destName);
   bool approveAckFrame(String);
 
+  void stopAndWaitARQWrapper();
   void transmitter();
   void receiver();
+
+  void stopAndWaitWrapper();
+  void sw_transmitter();
+  void sw_receiver();
 
 
 private:
@@ -33,6 +39,7 @@ private:
 
   FM_RX* rx;
   FM_TX* tx;
+  CRC8* crc8;
 };
 
 #endif PROTOCOL_LIB_H
