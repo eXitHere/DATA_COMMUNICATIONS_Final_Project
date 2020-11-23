@@ -35,7 +35,7 @@ def offLED(n):
 
 def led_freestyle(pattern, stop_threads):
 
-    run, direction = [1,1,1], [0,0,0]
+    run, direction = [4,1,8], [0,0,0]
     #print("In thread")
     while not stop_threads:
         for j in range(3):
