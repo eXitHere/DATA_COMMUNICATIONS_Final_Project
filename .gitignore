@@ -23,15 +23,18 @@ ML/venv
 *__MACOSX
 ML/model_datacom
 ML/model_datacom_2
+ML/model_datacom_3
 ML/images/train
 ML/images/validation
 PC2/model_datacom
 PC2/model_datacom_2
+PC2/model_datacom_3
 
 # ----------------------------------
 # git ignore for data science ...  |
 # ----------------------------------
 PC2/venv
+LED/venv
 docs/equations/*.aux
 docs/equations/*.log
 docs/equations/*.out

@@ -10,6 +10,7 @@ import signal
 from flask_cors import CORS
 from Image_processing import *
 from read_mode import get_mode
+from show_led import led_freestyle, setup_pin
 
 #define zone
 PROCESS_WITH_ML = 0
@@ -191,6 +192,8 @@ def serial_arudino3():
 
 
 if __name__ == "__main__":
+    setup_pin()
+    stack = []
     if processing_mode == PROCESS_WITH_IFELSE:
         print("PROCESS WITH IF ELSE")
     else:
@@ -199,8 +202,10 @@ if __name__ == "__main__":
     init_Serial()
     thread_Serial3 = threading.Thread(target=serial_arudino3)
     thread_Serial2 = threading.Thread(target=serial_arudino2)
+    thread_for_show_led = threading.Thread(target=led_freestyle)
     thread_Serial3.start()
     thread_Serial2.start()
+    thread_for_show_led.start()
     try:
         app.run(host="0.0.0.0",
                 port=5000,
