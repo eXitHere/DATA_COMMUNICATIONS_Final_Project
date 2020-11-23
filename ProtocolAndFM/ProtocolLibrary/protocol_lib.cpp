@@ -210,10 +210,11 @@ void ProtocolControl::transmitter()
         {
           ackFrame = rx->receiveFM();
         }
-        if (ackFrame.equals("") && millis() - current < TIMEOUT)
+        
+        /*if (ackFrame.equals("") && millis() - current < TIMEOUT)
         {
           continue;
-        }
+        }*/
 
 
         if (backoff > this->BACKOFF)
@@ -240,6 +241,7 @@ void ProtocolControl::transmitter()
         else
         {
           Serial.println("Good Ack: Next Frame");
+          frameNo == "0" ? frameNo = "1" : frameNo = "0";
           okAck = true;
         }
       }
