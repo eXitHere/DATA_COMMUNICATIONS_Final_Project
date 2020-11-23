@@ -6,11 +6,12 @@ import sys
 if len(sys.argv) > 1:
     port = sys.argv[1]
 else:
-    port='COM5'
+    port = 'COM5'
 
 print("Using port {}".format(port))
-width=120
-height=120
+width = 160
+height = 120
+
 
 def read_image(serial):
     #print("Reading Image...")
@@ -20,12 +21,12 @@ def read_image(serial):
     image = image.transpose(Image.ROTATE_270)
     image.save('./image.bmp')
 
-ser = serial.Serial(
-    port=port,
-    baudrate=1000000,
-    parity=serial.PARITY_NONE,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS)
+
+ser = serial.Serial(port=port,
+                    baudrate=1000000,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE,
+                    bytesize=serial.EIGHTBITS)
 
 print('Wait for Arduino to set itself up...')
 time.sleep(5)
@@ -36,7 +37,6 @@ if ser.isOpen() == False:
 else:
     print('Serial already open')
 
-
 str_ = ""
 counter = 0
 while True:
@@ -44,7 +44,7 @@ while True:
     #print(("Arduino says {}".format(ser.read_until('RDY'.encode('utf-8')))))
     ser.read_until('RDY'.encode('utf-8'))
     print("Captured", counter)
-    counter+=1
+    counter += 1
     #inp = input('Hit enter to fetch image, any other key to exit >')
     #if inp == "":
     ser.write(str.encode('X'))

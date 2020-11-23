@@ -56,6 +56,7 @@ void writeServoTo(int ser, int newPos) {
 
 
 void moveTo(char degree) {
+  writeServoTo(1, 130);
   switch (degree) {
     case 'L':
       writeServoTo(0, L_DEGREE);
@@ -137,5 +138,11 @@ void init_serve(int pin_horizontal_Servo, int pin_vertical_Servo) {
   vertical_Servo.write(45);
   updateValue();
   Serial.begin(115200);
+  Serial.println("Hello from arduino");
+  for (int i = 0; i < 6; i++) {
+    Serial.print(i);
+    Serial.print(" ");
+    Serial.println(readValue(i));
+  }
 }
 

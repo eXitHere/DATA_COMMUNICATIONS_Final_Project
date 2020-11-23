@@ -1,9 +1,10 @@
 {
     "port_Arduino1": "Com1",
     "buadrate_Arduino1": 115200,
-    "port_Arduino2": "Com15",
+    "port_Arduino2": "Com17",
     "buadrate_Arduino2": 115200,
     "port_Arduino3": "Com5",
     "buadrate_Arduino3": 1000000,
-    "ServerMaster": "192.168.88.10"
+    "ServerMaster": "192.168.88.10",
+    "server_processing": "localhost"
 }

@@ -2,9 +2,14 @@
 # git ignore for production |
 # --------------------------
 /Server/venv
-/Server/ML/model_datacom_2
-/Server/ML/model_datacom
-
+/Server/ML
+/Server/M.bmp
+/Server/L.bmp
+/Server/R.bmp
+/temp.bmp
+/image.bmp
+/ML/images
+/ML/images.zip
 
 /project-manager/FLASK-Server/venv
 /project-manager/FLASK-Server/__pycache__
