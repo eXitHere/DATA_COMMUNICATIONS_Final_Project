@@ -1,12 +1,15 @@
 #include "protocol_lib.h"
 
-ProtocolControl protocol("A");
+ProtocolControl* protocol;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  protocol = new ProtocolControl("A");
 }
 
 void loop()
 {
+  protocol->transmitter();
+  protocol->receiver();
 }

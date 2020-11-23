@@ -29,6 +29,7 @@ private:
   String allReceiving;
   String STARTFLAG;
   const int TIMEOUT = 2000;
+  const int BACKOFF = 7;
 
   FM_RX rx = FM_RX(87.5);//TODO: CHANGE FREQ
   FM_TX tx = FM_TX();

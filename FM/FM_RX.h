@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <TEA5767.h>
+#include "TEA5767.h"
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
