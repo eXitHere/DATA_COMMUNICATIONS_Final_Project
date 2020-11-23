@@ -1,9 +1,9 @@
-# import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
+import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
 from time import sleep  # Import the sleep function from the time module
 import random
 import threading
-# GPIO.setwarnings(False)  # Ignore warning for now
-# GPIO.setmode(GPIO.BCM)  # Use physical pin numbering
+GPIO.setwarnings(False)  # Ignore warning for now
+GPIO.setmode(GPIO.BCM)  # Use physical pin numbering
 
 led_lst = [26, 19, 13, 6, 5, 11, 9, 10, 22, 27, 17, 18]
 
@@ -16,22 +16,22 @@ is_thread_run = True
 
 
 def setup_pin():
-    # for x in led_lst:
-    #     GPIO.setup(x, GPIO.OUT, initial=GPIO.HIGH)
-    # GPIO.setup(pin_select_mode, GPIO.IN)
-    pass
+    for x in led_lst:
+        GPIO.setup(x, GPIO.OUT, initial=GPIO.HIGH)
+    GPIO.setup(pin_select_mode, GPIO.IN)
+    # pass
 
 
 def onLED(n):
-    # GPIO.output(led_lst[n], GPIO.LOW)
+    GPIO.output(led_lst[n], GPIO.LOW)
     # print('LED :', n, "ON")
-    virtual_led[n] = 1
+    # virtual_led[n] = 1
 
 
 def offLED(n):
-    # GPIO.output(led_lst[n], GPIO.HIGH)
+    GPIO.output(led_lst[n], GPIO.HIGH)
     # print('LED :', n, "OFF")
-    virtual_led[n] = 0
+    # virtual_led[n] = 0
 
 
 def freestyle():
@@ -41,20 +41,20 @@ def freestyle():
     run, direction = 1, 0
 
     while is_thread_run:
-        for k in range(12):
-            onLED(k)
-            sleep(0.01)
-            offLED(k)
-            sleep(0.01)
+        # for k in range(12):
+        #     onLED(k)
+        #     sleep(0.01)
+        #     offLED(k)
+        #     sleep(0.01)
         for j in range(3):
             #print(x,end=' ')
             if pattern[j] < 0 or pattern[j] > 15:  # running LED
                 x = run
                 for i in range(4):
                     if x & 1:
-                        onLED((4 * (j + 1)) - i - 1)
+                        onLED(4 * j + i)
                     else:
-                        offLED((4 * (j + 1)) - i - 1)
+                        offLED(4 * j + i)
                     x >>= 1
                 if run == 8:
                     direction = 1
@@ -68,14 +68,14 @@ def freestyle():
                 x = pattern[j]
                 for i in range(4):
                     if x & 1:
-                        onLED((4 * (j + 1)) - i - 1)
+                        onLED(4 * j + i)
                     else:
-                        offLED((4 * (j + 1)) - i - 1)
+                        offLED(4 * j + i)
                     x >>= 1
         sleep(0.25)
         # print()
         # print(' 0  1  2  3  4  5  6  7  8  9 10 11')
-        print(virtual_led)
+        # print(virtual_led)
 
 
 def clear():
@@ -102,9 +102,9 @@ if __name__ == "__main__":
         if left == -1:
             is_thread_run = False
             break
-        pattern[0] = left
+        pattern[0] = right
         pattern[1] = middle
-        pattern[2] = right
+        pattern[2] = left
         sleep(2)
-        clear()
+        # clear()
     print("End program")
