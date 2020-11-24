@@ -179,7 +179,7 @@ void ProtocolControl::transmitter()
   {
     String frameNo = "0";
     String textData = "";
-    const long TIMEOUT = 2000;
+    const long TIMEOUT = 1000;
 
     this->ackNo = "0";                       //reset ackNo
     this->allReceiving = "";                 //reset receiver
