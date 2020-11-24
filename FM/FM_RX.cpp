@@ -82,7 +82,7 @@ int FM_RX::receiveFM()
 
 int8_t FM_RX::isPeek(uint16_t val)
 {
-  if (val <= 600)
+  if (val <= 200)
     return 1;
   else
     return 0;

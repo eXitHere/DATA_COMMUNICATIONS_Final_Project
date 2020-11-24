@@ -50,6 +50,7 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
+  Serial.println(toSend+" "+String(char(checksum)));
   toSend += char(checksum);
 
   toSend += ENDFLAG;
@@ -63,16 +64,19 @@ bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
   */
   if (frame.length() != 8)
   {
+    Serial.println("Too Short: " + frame.length());
     return false;
   }
 
   if (frame[1] != this->srcName[0])
   {
+    Serial.println("Not for me: " + String(frame[1]));
     return false;
   }
 
   if (frame[3] != this->ackNo[0])
   {
+    Serial.println("Old Frame: " + String(frame[3]));
     return false;
   }
 
@@ -82,14 +86,18 @@ bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
   toCheck.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  if (char(checksum) == frame[6])
-  {
+  
+  Serial.println(String(checksum) + " " + String(uint8_t(frame[6])));
+  return true;
+  /*if (char(checksum) == frame[6])
+  { 
     return true;
   }
   else
   {
+    Serial.println("Bad Check: " + );
     return false;
-  }
+  }*/
 }
 
 String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destName)
@@ -265,7 +273,7 @@ void ProtocolControl::w_transmitter()
     this->ackNo = "0";                       //reset ackNo
     this->allReceiving = "";                 //reset receiver
     textData = Serial.readStringUntil('\n'); //read data from serial
-    Serial.println(textData);
+    //Serial.println(textData);
 
     while (textData.length() > 0) //Send All Data. Frame by Frame
     {
@@ -312,10 +320,9 @@ void ProtocolControl::w_transmitter()
 void ProtocolControl::w_receiver()
 {
   String frame = this->rx->receiveStringFM(8);
-
   if (!frame.equals(""))
   {
-    Serial.println("Get Frame: " + String(frame));
+    Serial.println("Get Frame: " + String(frame) + " " +String(this->ackNo));
     if (this->approveDataFrame(frame))
     {
       Serial.println("Good Frame: " + String(frame));

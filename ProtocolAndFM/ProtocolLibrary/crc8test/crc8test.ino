@@ -15,7 +15,8 @@ void loop() {
 
 
   // original message 
-  String str = "Hello world!";
+  String str = "oAB0abA1";
+  str = str.substring(0,6);
 
   // generate the checksum
   int str_len = str.length() + 1; // calculate length of message (with one extra character for the null terminator)
@@ -28,7 +29,7 @@ void loop() {
 
   Serial.println("Original message:");
   Serial.println(str);
-  Serial.println("CRC8 checksum:");
+  Serial.println("CRC8 checksum:" + String(checksum));
   Serial.println(checksum_str);
   Serial.println();
   delay(1000);
