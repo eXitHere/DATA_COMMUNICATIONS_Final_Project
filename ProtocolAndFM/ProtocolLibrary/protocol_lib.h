@@ -19,8 +19,13 @@ public:
   String makeAckFrame(String ackNo, String ENDFLAG, String destName);
   bool approveAckFrame(String);
 
+  void wrapper();
   void transmitter();
   void receiver();
+
+  void w_wrapper();
+  void w_transmitter();
+  void w_receiver();
 
 private:
   String srcName, destName;

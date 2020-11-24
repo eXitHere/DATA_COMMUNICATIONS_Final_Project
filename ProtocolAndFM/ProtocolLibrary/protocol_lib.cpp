@@ -46,7 +46,7 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
 
   //Trailer: CRC8
   int str_len = toSend.length() + 1;
-  unsigned char char_array[str_len];		 // prepare a character array (the buffer)
+  unsigned char char_array[str_len];       // prepare a character array (the buffer)
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
@@ -77,8 +77,8 @@ bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
   }
 
   String toCheck = frame.substring(0, 6);
-  int str_len = toCheck.length() + 1;		  // calculate length of message (with one extra character for the null terminator)
-  unsigned char char_array[str_len];		  // prepare a character array (the buffer)
+  int str_len = toCheck.length() + 1;       // calculate length of message (with one extra character for the null terminator)
+  unsigned char char_array[str_len];        // prepare a character array (the buffer)
   toCheck.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
@@ -112,7 +112,7 @@ String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destNa
 
   //Trailer: CRC
   int str_len = toSend.length() + 1;
-  unsigned char char_array[str_len];		 // prepare a character array (the buffer)
+  unsigned char char_array[str_len];       // prepare a character array (the buffer)
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
   toSend += char(checksum);
@@ -138,8 +138,8 @@ bool ProtocolControl::approveAckFrame(String frame) //TODO: CHANGE TO CRC
   }
 
   String toCheck = frame.substring(0, 4);
-  int str_len = toCheck.length() + 1;		  // calculate length of message (with one extra character for the null terminator)
-  unsigned char char_array[str_len];		  // prepare a character array (the buffer)
+  int str_len = toCheck.length() + 1;       // calculate length of message (with one extra character for the null terminator)
+  unsigned char char_array[str_len];        // prepare a character array (the buffer)
   toCheck.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
@@ -153,6 +153,12 @@ bool ProtocolControl::approveAckFrame(String frame) //TODO: CHANGE TO CRC
   }
 }
 
+void ProtocolControl::wrapper()
+{
+  this->transmitter();
+  this->receiver();
+}
+
 void ProtocolControl::transmitter()
 {
   if (Serial.available()) //Read data from serial
@@ -161,8 +167,8 @@ void ProtocolControl::transmitter()
     String textData = "";
     const long TIMEOUT = 200;
 
-    this->ackNo = "0";						 //reset ackNo
-    this->allReceiving = "";				 //reset receiver
+    this->ackNo = "0";                       //reset ackNo
+    this->allReceiving = "";                 //reset receiver
     textData = Serial.readStringUntil('\n'); //read data from serial
     Serial.println(textData);
 
@@ -212,7 +218,7 @@ void ProtocolControl::transmitter()
 void ProtocolControl::receiver()
 {
   String frame = this->rx->receiveStringFM(8);
-  
+
   if (!frame.equals(""))
   {
     Serial.println("Get Frame: " + String(frame));
@@ -224,7 +230,7 @@ void ProtocolControl::receiver()
       this->allReceiving += frame.substring(4, 6); //Store Incoming Data
 
       String ackFrame = this->makeAckFrame(ackNo, "0", destName);
-      Serial.println("ACK FRAME: "+String(ackFrame));
+      Serial.println("ACK FRAME: " + String(ackFrame));
       for (int i = 0; i < ackFrame.length(); i++)
       {
         this->tx->sendFM(ackFrame[i]);
@@ -234,7 +240,100 @@ void ProtocolControl::receiver()
       {
         this->ackNo = "0";
         //STORE DATA HERE
-        Serial.println("----- All Receiving: " + String(this->allReceiving)+" -----");
+        Serial.println("----- All Receiving: " + String(this->allReceiving) + " -----");
+        this->allReceiving = "";
+      }
+    }
+  }
+}
+
+void ProtocolControl::w_wrapper()
+{
+  this->w_transmitter();
+  this->w_receiver();
+}
+
+void ProtocolControl::w_transmitter()
+{
+  if (Serial.available()) //Read data from serial
+  {
+    String frameNo = "0";
+    String textData = "";
+    const long TIMEOUT = 200;
+
+    this->ackNo = "0";                       //reset ackNo
+    this->allReceiving = "";                 //reset receiver
+    textData = Serial.readStringUntil('\n'); //read data from serial
+    Serial.println(textData);
+
+    while (textData.length() > 0) //Send All Data. Frame by Frame
+    {
+      //Make Data Frame
+      String frame = "";
+      if (textData.length() > 2)
+        frame = this->makeDataFrame(textData.substring(0, 2), frameNo, "1", this->destName);
+      else
+        frame = this->makeDataFrame(textData.substring(0, 2), frameNo, "0", this->destName);
+      Serial.println("Data Frame: " + String(frame));
+
+      while (true) //Send & "Wait"
+      {
+        for (int i = 0; i < frame.length(); i++) //Send
+        {
+          this->tx->sendFM(frame[i]);
+        }
+        long timer = millis();
+        bool okAck = false;
+
+        while (millis() - timer < TIMEOUT) //Wait for ACK
+        {
+          String ackFrame = this->rx->receiveStringFM(6); //receive ACK
+          Serial.println("Received ACK FRAME: " + String(ackFrame));
+          if (this->approveAckFrame(ackFrame)) //Prep to exit the "Wait"
+          {
+            Serial.println("Good ACK: PROCEED");
+            frameNo == "0" ? frameNo = "1" : frameNo = "0"; //change frame number
+            textData = textData.substring(2);
+            okAck = true;
+            break;
+          }
+        }
+
+        if (okAck) //Exit "Wait" part
+        {
+          break;
+        }
+      }
+    }
+    Serial.println("-----End of Transmission------");
+  }
+}
+void ProtocolControl::w_receiver()
+{
+  String frame = this->rx->receiveStringFM(8);
+
+  if (!frame.equals(""))
+  {
+    Serial.println("Get Frame: " + String(frame));
+    if (this->approveDataFrame(frame))
+    {
+      Serial.println("Good Frame: " + String(frame));
+      this->ackNo == "0" ? this->ackNo = "1" : this->ackNo = "0"; //Change Ack Number
+
+      this->allReceiving += frame.substring(4, 6); //Store Incoming Data
+
+      String ackFrame = this->makeAckFrame(ackNo, "0", destName);
+      Serial.println("ACK FRAME: " + String(ackFrame));
+      for (int i = 0; i < ackFrame.length(); i++)
+      {
+        this->tx->sendFM(ackFrame[i]);
+      }
+
+      if (frame[7] == '0') //End Of Transmission
+      {
+        this->ackNo = "0";
+        //STORE DATA HERE
+        Serial.println("----- All Receiving: " + String(this->allReceiving) + " -----");
         this->allReceiving = "";
       }
     }

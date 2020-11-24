@@ -61,6 +61,6 @@ void FM_TX::transmit(char in)
 
 void FM_TX::sendFM_noDelay(char data)
 {
-  transmit(in);
+  transmit(data);
   setVoltage(2047);
 }
