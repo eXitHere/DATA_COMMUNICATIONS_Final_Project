@@ -247,6 +247,7 @@ void ProtocolControl::receiver()
   }
 }
 
+//USE sendFM_noDelay();
 void ProtocolControl::w_wrapper()
 {
   this->w_transmitter();
@@ -280,7 +281,7 @@ void ProtocolControl::w_transmitter()
       {
         for (int i = 0; i < frame.length(); i++) //Send
         {
-          this->tx->sendFM(frame[i]);
+          this->tx->sendFM_noDelay(frame[i]);
         }
         long timer = millis();
         bool okAck = false;
@@ -326,7 +327,7 @@ void ProtocolControl::w_receiver()
       Serial.println("ACK FRAME: " + String(ackFrame));
       for (int i = 0; i < ackFrame.length(); i++)
       {
-        this->tx->sendFM(ackFrame[i]);
+        this->tx->sendFM_noDelay(ackFrame[i]);
       }
 
       if (frame[7] == '0') //End Of Transmission
