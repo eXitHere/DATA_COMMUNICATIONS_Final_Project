@@ -15,7 +15,7 @@ void loop() {
 
 
   // original message 
-  String str = "Hello world!";
+  String str = "oBA0Da";
 
   // generate the checksum
   int str_len = str.length() + 1; // calculate length of message (with one extra character for the null terminator)
@@ -26,10 +26,20 @@ void loop() {
   //combine message and checksum with separating character
   String checksum_str = String(checksum);
 
+  String new_str = str + String(char(checksum));
+  int new_str_len = new_str.length() + 1; // calculate length of message (with one extra character for the null terminator)
+  unsigned char new_char_array[new_str_len]; // prepare a character array (the buffer)
+  new_str.toCharArray(new_char_array, new_str_len); // copy it over
+  uint8_t new_checksum = crc8.get_crc8(new_char_array, new_str_len);
+  String new_checksum_str = String(new_checksum);
+
   Serial.println("Original message:");
   Serial.println(str);
-  Serial.println("CRC8 checksum:");
+  Serial.println("CRC8 checksum:" + String(checksum));
   Serial.println(checksum_str);
-  Serial.println();
+  Serial.println("CRCed:");
+  Serial.println(new_str);
+  Serial.println("CRC8 checksum:" + String(new_checksum));
+  Serial.println(new_checksum_str);
   delay(1000);
 }
