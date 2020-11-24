@@ -45,14 +45,15 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
   toSend += data;
   
 
-  Serial.println(toSend);
   //Trailer: CRC8
   int str_len = toSend.length()+1;
   unsigned char char_array[str_len];       // prepare a character array (the buffer)
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  //Serial.println(toSend+" "+String(char(checksum)));
+  if(checksum == 0 || checksum == 8 || checksum == 127)
+    checksum++;
+  Serial.println(toSend+" "+String(checksum));
   toSend += char(checksum);
 
   toSend += ENDFLAG;
@@ -66,7 +67,7 @@ bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
   */
   if (frame.length() != 8)
   {
-    Serial.println("Too Short: " + frame.length());
+    Serial.println("Bad Size: " + frame.length());
     return false;
   }
 
@@ -87,6 +88,8 @@ bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
   unsigned char char_array[str_len];        // prepare a character array (the buffer)
   toCheck.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
+  if(checksum == 0 || checksum == 8 || checksum == 127)
+    checksum++;
 
   if (char(checksum) == frame[6] || true)
   { 
@@ -123,6 +126,8 @@ String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destNa
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
   toSend += char(checksum);
+  if(checksum == 0 || checksum == 8 || checksum == 127)
+    checksum++;
 
   toSend += ENDFLAG;
 
@@ -149,6 +154,8 @@ bool ProtocolControl::approveAckFrame(String frame) //TODO: CHANGE TO CRC
   unsigned char char_array[str_len];        // prepare a character array (the buffer)
   toCheck.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
+  if(checksum == 0 || checksum == 8 || checksum == 127)
+    checksum++;
 
   if (char(checksum) == frame[4] || true)
   {
@@ -327,7 +334,11 @@ void ProtocolControl::w_receiver()
       Serial.println("Good Frame: " + String(frame));
       this->ackNo == "0" ? this->ackNo = "1" : this->ackNo = "0"; //Change Ack Number
 
-      this->allReceiving += frame.substring(4, 6); //Store Incoming Data
+      for(int i=4;i<6;i++)//store incoming data
+      {
+        if(frame[i] != '~')
+          this->allReceiving += frame[i];
+      }
 
       String ackFrame = this->makeAckFrame(ackNo, "0", destName);
       Serial.println("ACK FRAME: " + String(ackFrame));
