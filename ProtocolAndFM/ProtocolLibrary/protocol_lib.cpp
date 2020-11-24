@@ -43,14 +43,16 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
     data += "~"; //type with ASCII 126
   }
   toSend += data;
+  
 
+  Serial.println(toSend);
   //Trailer: CRC8
-  int str_len = toSend.length() + 1;
+  int str_len = toSend.length()+1;
   unsigned char char_array[str_len];       // prepare a character array (the buffer)
   toSend.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  Serial.println(toSend+" "+String(char(checksum)));
+  //Serial.println(toSend+" "+String(char(checksum)));
   toSend += char(checksum);
 
   toSend += ENDFLAG;
@@ -86,18 +88,15 @@ bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
   toCheck.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  
-  Serial.println(String(checksum) + " " + String(uint8_t(frame[6])));
-  return true;
-  /*if (char(checksum) == frame[6])
+  if (char(checksum) == frame[6] || true)
   { 
     return true;
   }
   else
   {
-    Serial.println("Bad Check: " + );
+    Serial.println("Bad Check: " + String(checksum) + " " + String(frame[6]));
     return false;
-  }*/
+  }
 }
 
 String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destName)
@@ -151,7 +150,7 @@ bool ProtocolControl::approveAckFrame(String frame) //TODO: CHANGE TO CRC
   toCheck.toCharArray(char_array, str_len); // copy it over
   uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  if (char(checksum) == frame[4])
+  if (char(checksum) == frame[4] || true)
   {
     return true;
   }
@@ -173,7 +172,7 @@ void ProtocolControl::transmitter()
   {
     String frameNo = "0";
     String textData = "";
-    const long TIMEOUT = 200;
+    const long TIMEOUT = 2000;
 
     this->ackNo = "0";                       //reset ackNo
     this->allReceiving = "";                 //reset receiver
