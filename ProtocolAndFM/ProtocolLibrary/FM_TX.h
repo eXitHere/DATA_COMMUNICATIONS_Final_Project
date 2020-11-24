@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include<Adafruit_MCP4725.h>
-#include<Adafruit_ADS1015.h>
+#include <Adafruit_MCP4725.h>
+#include <Adafruit_ADS1015.h>
 
 #define NUM_SAMPLE 4
 #define NUM_FREQ 4
@@ -10,19 +10,21 @@
 
 class FM_TX
 {
-  public:
-    FM_TX();
-    void sendFM(char data);
+public:
+  FM_TX();
+  void sendFM(char data);
 
-  private:
-    int delay0;
-    float S[NUM_SAMPLE];
-    float S_DAC[NUM_SAMPLE];
-    int freq[NUM_FREQ];
-    int freqDelay[NUM_FREQ];
+  void sendFM_noDelay(char data);
 
-    Adafruit_MCP4725 dac;
+private:
+  int delay0;
+  float S[NUM_SAMPLE];
+  float S_DAC[NUM_SAMPLE];
+  int freq[NUM_FREQ];
+  int freqDelay[NUM_FREQ];
 
-    void setVoltage(uint16_t vol);
-    void transmit(char in);
+  Adafruit_MCP4725 dac;
+
+  void setVoltage(uint16_t vol);
+  void transmit(char in);
 };
