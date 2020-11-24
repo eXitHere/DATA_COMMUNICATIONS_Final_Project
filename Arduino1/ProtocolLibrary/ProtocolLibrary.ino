@@ -1,3 +1,6 @@
+#include <Adafruit_MCP4725.h>
+#include <Wire.h>
+
 #include "protocol_lib.h"
 
 ProtocolControl* protocol;
@@ -5,7 +8,7 @@ ProtocolControl* protocol;
 void setup()
 {
   Serial.begin(115200);
-  protocol = new ProtocolControl("A", "B", 87.7);
+  protocol = new ProtocolControl("A", "B", 107.7);
 }
 
 void loop()

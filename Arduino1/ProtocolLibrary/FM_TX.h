@@ -1,7 +1,8 @@
+#include <Adafruit_MCP4725.h>
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_MCP4725.h>
-#include <Adafruit_ADS1015.h>
 
 #define NUM_SAMPLE 4
 #define NUM_FREQ 4

@@ -26,9 +26,13 @@ ML/model_datacom_2
 ML/model_datacom_3
 ML/images/train
 ML/images/validation
+ML/data_set_final/train
+ML/data_set_final/validation
 PC2/model_datacom
 PC2/model_datacom_2
 PC2/model_datacom_3
+PC2/model_datacom_final
+PC2/model_datacom_test
 
 # ----------------------------------
 # git ignore for data science ...  |

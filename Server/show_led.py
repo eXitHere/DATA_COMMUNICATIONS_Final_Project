@@ -35,13 +35,13 @@ def offLED(n):
 
 def led_freestyle(pattern, stop_threads):
 
-    run, direction = 1, 0
+    run, direction = [4,1,8], [0,0,0]
     #print("In thread")
     while not stop_threads:
         for j in range(3):
             #print(x,end=' ')
             if pattern[j] < 0 or pattern[j] > 15:  # running LED
-                x = run
+                x = run[j]
                 for i in range(4):
                     if x & 1:
                         onLED(4 * j + i)
@@ -49,14 +49,14 @@ def led_freestyle(pattern, stop_threads):
                         offLED(4 * j + i)
                     x >>= 1
                     #print(x)
-                if run == 8:
-                    direction = 1
-                elif run == 1:
-                    direction = 0
-                if direction == 0:
-                    run <<= 1
+                if run[j] == 8:
+                    direction[j] = 1
+                elif run[j] == 1:
+                    direction[j] = 0
+                if direction[j] == 0:
+                    run[j] <<= 1
                 else:
-                    run >>= 1
+                    run[j] >>= 1
                 #print()
             else:
                 x = pattern[j]

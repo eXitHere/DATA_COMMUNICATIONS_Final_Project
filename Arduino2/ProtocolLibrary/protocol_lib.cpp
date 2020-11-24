@@ -320,23 +320,24 @@ void ProtocolControl::receiver()
 }
 
 //USE sendFM_noDelay();
-void ProtocolControl::w_wrapper()
+void ProtocolControl::w_wrapper(String inp)
 {
-  this->w_transmitter();
+  this->w_transmitter(inp);
   this->w_receiver();
 }
 
-void ProtocolControl::w_transmitter()
+void ProtocolControl::w_transmitter(String inp)
 {
-  if (Serial.available()) //Read data from serial
-  {
+  /*if (Serial.available()) //Read data from serial
+  {*/
     String frameNo = "0";
     String textData = "";
     const long TIMEOUT = 200;
 
     this->ackNo = "0";                       //reset ackNo
     this->allReceiving = "";                 //reset receiver
-    textData = Serial.readStringUntil('\n'); //read data from serial
+    //textData = Serial.readStringUntil('\n'); //read data from serial
+    textData = inp; //read data from serial
     //Serial.println(textData);
 
     while (textData.length() > 0) //Send All Data. Frame by Frame
@@ -379,7 +380,7 @@ void ProtocolControl::w_transmitter()
       }
     }
     Serial.println("-----End of Transmission------");
-  }
+  //}
 }
 void ProtocolControl::w_receiver()
 {
