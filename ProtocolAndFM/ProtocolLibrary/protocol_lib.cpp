@@ -43,22 +43,31 @@ String ProtocolControl::makeDataFrame(String textData, String frameNo, String EN
     data += "~"; //type with ASCII 126
   }
   toSend += data;
-  
 
-  //Trailer: CRC8
-  int str_len = toSend.length()+1;
-  unsigned char char_array[str_len];       // prepare a character array (the buffer)
-  toSend.toCharArray(char_array, str_len); // copy it over
-  uint8_t checksum = crc8->get_crc8(char_array, str_len);
 
-  if(checksum == 0 || checksum == 8 || checksum == 127)
-    checksum++;
-  Serial.println(toSend+" "+String(checksum));
-  toSend += char(checksum);
+  /*
+    //Trailer: CRC8
+    int str_len = toSend.length()+1;
+    unsigned char char_array[str_len];       // prepare a character array (the buffer)
+    toSend.toCharArray(char_array, str_len); // copy it over
+    uint8_t checksum = crc8->get_crc8(char_array, str_len);
+
+    if(checksum == 0 || checksum == 8 || checksum == 127)
+      checksum++;
+    //Serial.println(toSend+" "+String(checksum));
+    toSend += char(checksum);
+  */
+  int sum=0;
+  for(int i=0;i<toSend.length();i++)
+  {
+    sum += int(toSend[i]);
+  }
+  sum = sum%2;
+  toSend += String(sum);
 
   toSend += ENDFLAG;
-
   return toSend;
+
 }
 bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
 {
@@ -82,22 +91,43 @@ bool ProtocolControl::approveDataFrame(String frame) //TODO: CHANGE TO CRC
     Serial.println("Old Frame: " + String(frame[3]));
     return false;
   }
+  /*
+    String toCheck = frame.substring(0, 6);
+    int str_len = toCheck.length() + 1;       // calculate length of message (with one extra character for the null terminator)
+    unsigned char char_array[str_len];        // prepare a character array (the buffer)
+    toCheck.toCharArray(char_array, str_len); // copy it over
+    uint8_t checksum = crc8->get_crc8(char_array, str_len);
+    if(checksum == 0 || checksum == 8 || checksum == 127)
+      checksum++;
 
-  String toCheck = frame.substring(0, 6);
-  int str_len = toCheck.length() + 1;       // calculate length of message (with one extra character for the null terminator)
-  unsigned char char_array[str_len];        // prepare a character array (the buffer)
-  toCheck.toCharArray(char_array, str_len); // copy it over
-  uint8_t checksum = crc8->get_crc8(char_array, str_len);
-  if(checksum == 0 || checksum == 8 || checksum == 127)
-    checksum++;
+    Serial.println(String(checksum) + " " + String(uint8_t(frame[6])));
 
-  if (char(checksum) == frame[6] || true)
-  { 
+    if (char(checksum) == frame[6] || true)
+    {
+      return true;
+    }
+    else
+    {
+      Serial.println("Bad Check: " + String(checksum) + " " + String(frame[6]));
+      return false;
+    }
+  */
+
+  int sum=0;
+  for(int i=0;i<6;i++)
+  {
+    sum += int(frame[i]);
+  }
+  sum = sum%2;
+  char x;
+  sum == 1 ? x='1' : x='0';
+
+  if(x == frame[6])
+  {
     return true;
   }
   else
   {
-    Serial.println("Bad Check: " + String(checksum) + " " + String(frame[6]));
     return false;
   }
 }
@@ -119,15 +149,25 @@ String ProtocolControl::makeAckFrame(String ackNo, String ENDFLAG, String destNa
 
   //Ack Number
   toSend += ackNo;
+  /*
+    //Trailer: CRC
+    int str_len = toSend.length() + 1;
+    unsigned char char_array[str_len];       // prepare a character array (the buffer)
+    toSend.toCharArray(char_array, str_len); // copy it over
+    uint8_t checksum = crc8->get_crc8(char_array, str_len);
+    if(checksum == 0 || checksum == 8 || checksum == 127)
+      checksum++;
 
-  //Trailer: CRC
-  int str_len = toSend.length() + 1;
-  unsigned char char_array[str_len];       // prepare a character array (the buffer)
-  toSend.toCharArray(char_array, str_len); // copy it over
-  uint8_t checksum = crc8->get_crc8(char_array, str_len);
-  toSend += char(checksum);
-  if(checksum == 0 || checksum == 8 || checksum == 127)
-    checksum++;
+    toSend += char(checksum);
+  */
+
+  int sum=0;
+  for(int i=0;i<toSend.length();i++)
+  {
+    sum += int(toSend[i]);
+  }
+  sum = sum%2;
+  toSend += String(sum);
 
   toSend += ENDFLAG;
 
@@ -148,16 +188,34 @@ bool ProtocolControl::approveAckFrame(String frame) //TODO: CHANGE TO CRC
   {
     return false;
   }
+  /*
+    String toCheck = frame.substring(0, 4);
+    int str_len = toCheck.length() + 1;       // calculate length of message (with one extra character for the null terminator)
+    unsigned char char_array[str_len];        // prepare a character array (the buffer)
+    toCheck.toCharArray(char_array, str_len); // copy it over
+    uint8_t checksum = crc8->get_crc8(char_array, str_len);
+    if(checksum == 0 || checksum == 8 || checksum == 127)
+      checksum++;
 
-  String toCheck = frame.substring(0, 4);
-  int str_len = toCheck.length() + 1;       // calculate length of message (with one extra character for the null terminator)
-  unsigned char char_array[str_len];        // prepare a character array (the buffer)
-  toCheck.toCharArray(char_array, str_len); // copy it over
-  uint8_t checksum = crc8->get_crc8(char_array, str_len);
-  if(checksum == 0 || checksum == 8 || checksum == 127)
-    checksum++;
+    if (char(checksum) == frame[4] || true)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  */
+  int sum=0;
+  for(int i=0;i<4;i++)
+  {
+    sum += int(frame[i]);
+  }
+  sum = sum%2;
+  char x;
+  sum == 1 ? x='1' : x='0';
 
-  if (char(checksum) == frame[4] || true)
+  if(x == frame[4])
   {
     return true;
   }
@@ -328,15 +386,15 @@ void ProtocolControl::w_receiver()
   String frame = this->rx->receiveStringFM(8);
   if (!frame.equals(""))
   {
-    Serial.println("Get Frame: " + String(frame) + " " +String(this->ackNo));
+    Serial.println("Get Frame: " + String(frame) + " " + String(this->ackNo));
     if (this->approveDataFrame(frame))
     {
       Serial.println("Good Frame: " + String(frame));
       this->ackNo == "0" ? this->ackNo = "1" : this->ackNo = "0"; //Change Ack Number
 
-      for(int i=4;i<6;i++)//store incoming data
+      for (int i = 4; i < 6; i++) //store incoming data
       {
-        if(frame[i] != '~')
+        if (frame[i] != '~')
           this->allReceiving += frame[i];
       }
 
