@@ -38,8 +38,8 @@ void loop()
   Serial.println(withCrc + " check: " + String(getUintCrc(withCrc)));
   Serial.println("---------------------");
   
-  String y ="nax";
-  checksum = getUintCrc(y);
+  String y ="nax"+String(char(checksum));
+  checksum = getUintCrc(y.substring(0,3));
   Serial.println(y +", "+String(checksum) + " in char: " + String(char(checksum)));
   Serial.println("---------------------------------------------------------");
  delay(2000); 
