@@ -15,22 +15,15 @@ CORS(app)
 model = load_model('./ML/model_datacom')
 
 
-def process(image_, model_idx):
+def process(image_):
     array_test_img = image.img_to_array(image_)
     array_test_img = np.expand_dims(array_test_img, axis=0)
     target = np.vstack([array_test_img])
-    return np.argmax(model[model_idx].predict(target), axis=-1)
+    return np.argmax(model.predict(target), axis=-1)
 
 
 def process_image(img):
-    ans = []
-    ans.append(process(img, 0)[0])
-    for i in range(5):
-        ans.append(process(img, i)[0])
-    ans.append(ans[len(ans) - 1])
-    ans.append(ans[len(ans) - 2])
-    print("answer from 5 model:", ans)
-    return max(ans, key=ans.count)
+    return process(img)[0]
 
 
 def process_with_ml(img):
