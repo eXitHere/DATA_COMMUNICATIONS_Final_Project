@@ -175,11 +175,14 @@ def init_Serial():
     global serial_Arduino2
     global config
     print(config)
-    serial_Arduino2 = serial.Serial(port=config['port_Arduino2'],
-                                    baudrate=config['buadrate_Arduino2'],
-                                    parity=serial.PARITY_NONE,
-                                    stopbits=serial.STOPBITS_ONE,
-                                    bytesize=serial.EIGHTBITS)
+
+    serial_Arduino2 = serial.Serial(
+        port=config['port_Arduino2'],
+        baudrate=config['buadrate_Arduino2'],
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS)
+
     serial_Arduino3 = serial.Serial(
         port=config['port_Arduino3'],
         baudrate=config['buadrate_Arduino3'],
@@ -187,13 +190,14 @@ def init_Serial():
         stopbits=serial.STOPBITS_ONE,
         bytesize=serial.EIGHTBITS,
     )
+
     if serial_Arduino3.isOpen():
         #print("Close port 3")
         serial_Arduino3.close()
     #print('Wait for Arduino to set itself up...')
     time.sleep(5)
 
-
+ 
 def travel_capture():
     global focus_idx
     global send_msg_Arduono2

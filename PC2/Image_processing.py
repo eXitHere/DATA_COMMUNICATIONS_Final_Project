@@ -1,5 +1,6 @@
 import cv2
-from PIL import Image
+from 
+ import Image
 import sys
 import numpy as np
 import time
@@ -82,7 +83,6 @@ def process_with_ifelse(serial, x):
 
 def read_image(serial, x):
     #print("wait for arduino rdy")
-    #time.sleep(0.1)
     serial.flush()
     serial.read_until('*RDY*'.encode('utf-8'))
     #print("captured")
@@ -92,7 +92,6 @@ def read_image(serial, x):
     _image = _image.transpose(Image.ROTATE_270)
     _image.save('./{}.bmp'.format(x))
     #print('save image')
-
 
 def flush_image(serial):
     #print("wait for arduino rdy")
