@@ -48,19 +48,10 @@ int FM_RX::receiveFM()
         data |= last;
 
         bit_check++;
-
-        //          Serial.print(count);
-        //          Serial.print(" : ");
-        //          Serial.print(dt);
-        //          Serial.print(" , ");
         if (bit_check == 8) // 8 bits
         {
-          //            Serial.print("\nAlphabets :\t");
-          //            Serial.print((char)data);
           if ( data != 0)
             return data;
-          //            Serial.println("\t" + String(char(data)) + "\n");
-          //            all_data += String(char(data));
           data = 0;
           bit_check = 0;
         }
@@ -126,11 +117,6 @@ String FM_RX::receiveStringFM(int maxLength)//Return data string (Empty string i
         data |= last;
 
         bit_check++;
-
-        //  Serial.print(count);
-        //          Serial.print(" : ");
-        //          Serial.print(dt);
-        //          Serial.print(" , ");
         if (bit_check == 8) // 8 bits
         {
           if (data != 0)
