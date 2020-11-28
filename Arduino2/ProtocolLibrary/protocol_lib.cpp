@@ -320,13 +320,13 @@ void ProtocolControl::receiver()
 }
 
 //USE sendFM_noDelay();
-void ProtocolControl::w_wrapper(String inp)
+void ProtocolControl::w_wrapper(string inp)
 {
-  this->w_transmitter(inp);
+  this->w_transmitter(string inp);
   this->w_receiver();
 }
 
-void ProtocolControl::w_transmitter(String inp)
+void ProtocolControl::w_transmitter(string inp)
 {
   /*if (Serial.available()) //Read data from serial
   {*/

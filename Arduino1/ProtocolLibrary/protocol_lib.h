@@ -27,6 +27,8 @@ public:
   void w_transmitter();
   void w_receiver();
 
+  uint8_t makeCrcCheck(String);
+
 private:
   String srcName, destName;
   String ackNo;

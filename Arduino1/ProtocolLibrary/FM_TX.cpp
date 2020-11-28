@@ -6,8 +6,8 @@ FM_TX::FM_TX()
   dac.begin(0x64);
   for (int i = 0; i < NUM_FREQ; i++)
   {
-    freq[i] = ((i + 1) * 3) * FREQ_DIFF;
-    freqDelay[i] = (1000000 / freq[i] + (200 * (4 - i))) / NUM_SAMPLE;
+    freq[i] = ((i + 1) * 5) * FREQ_DIFF;
+    freqDelay[i] = ( 1000000 / freq[i] + ( (2 - i) * 200 )) / NUM_SAMPLE ;
     Serial.print(freq[i]);
     Serial.print(" ");
     Serial.println(freqDelay[i]);
@@ -34,18 +34,18 @@ void FM_TX::sendFM(char in)
 {
   transmit(in);
   setVoltage(2047);
-  delay(250);
+  delay(30);
 }
 
 void FM_TX::transmit(char in)
 {
-  int input[4];
-  for (int i = 0; i < NUM_FREQ; i++)
+  int input[8];
+  for( int i = 0; i < 8; i++) 
   {
-    input[i] = (in >> (i * 2)) & B0011;
+    input[i] = (in >> i) & B0001;
   }
 
-  for (int k = 0; k <= 3; k++)
+  for (int k = 0; k < 8; k++)
   {
     for (int cycle = freq[input[k]] / FREQ_DIFF; cycle > 0; cycle--)
     {
@@ -55,7 +55,7 @@ void FM_TX::transmit(char in)
         delayMicroseconds(freqDelay[input[k]]);
       }
     }
-    delayMicroseconds((6 - 2 * input[k]) * 1100);
+    delayMicroseconds((1- input[k]) * 4000 + 1250);
   }
 }
 
@@ -63,4 +63,5 @@ void FM_TX::sendFM_noDelay(char data)
 {
   transmit(data);
   setVoltage(2047);
+  //delay(30);
 }

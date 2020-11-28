@@ -23,8 +23,8 @@ public:
   void transmitter();
   void receiver();
 
-  void w_wrapper(String inp);
-  void w_transmitter(String inp);
+  void w_wrapper(string inp);
+  void w_transmitter(string inp);
   void w_receiver();
 
 private:

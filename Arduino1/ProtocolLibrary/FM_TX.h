@@ -5,8 +5,8 @@
 #include <Adafruit_MCP4725.h>
 
 #define NUM_SAMPLE 4
-#define NUM_FREQ 4
-#define FREQ_DIFF 100
+#define NUM_FREQ 2
+#define FREQ_DIFF 250
 #define DEF_FREQ 2500
 
 class FM_TX

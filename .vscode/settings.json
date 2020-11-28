@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "PC2\\venv\\Scripts\\python.exe",
+    "python.formatting.provider": "yapf",
+    "files.associations": {
+        "xstring": "cpp"
+    }
+}
