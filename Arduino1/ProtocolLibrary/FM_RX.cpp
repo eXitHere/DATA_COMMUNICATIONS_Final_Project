@@ -41,7 +41,7 @@ int FM_RX::receiveFM()
     }
 
     if (tmp == 0 and check_baud) {
-      if (micros() - baud_begin > 12900 )
+      if (micros() - baud_begin > 9800 )
       {
         int dt = ((int(floor((count) / 5.0) - 1)) & 1);
         uint16_t last = dt << (bit_check);
@@ -119,7 +119,7 @@ String FM_RX::receiveStringFM(int maxLength)//Return data string (Empty string i
     }
 
     if (tmp == 0 and check_baud) {
-      if (micros() - baud_begin > 13300 )
+      if (micros() - baud_begin > 9800 )
       {
 
         int dt = ((int(floor((count) / 5.0)) - 1) & 1);

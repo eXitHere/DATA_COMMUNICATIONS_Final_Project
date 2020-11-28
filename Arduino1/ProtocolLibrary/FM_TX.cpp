@@ -7,7 +7,7 @@ FM_TX::FM_TX()
   for (int i = 0; i < NUM_FREQ; i++)
   {
     freq[i] = ((i + 1) * 5) * FREQ_DIFF;
-    freqDelay[i] = ( 1000000 / freq[i] + ( (2 - i) * 200 )) / NUM_SAMPLE ;
+    freqDelay[i] = ( 1000000 / freq[i] ) / NUM_SAMPLE ;
     Serial.print(freq[i]);
     Serial.print(" ");
     Serial.println(freqDelay[i]);
@@ -55,7 +55,6 @@ void FM_TX::transmit(char in)
         delayMicroseconds(freqDelay[input[k]]);
       }
     }
-    delayMicroseconds((1- input[k]) * 4000 + 1250);
   }
 }
 
@@ -63,5 +62,4 @@ void FM_TX::sendFM_noDelay(char data)
 {
   transmit(data);
   setVoltage(2047);
-  //delay(30);
 }

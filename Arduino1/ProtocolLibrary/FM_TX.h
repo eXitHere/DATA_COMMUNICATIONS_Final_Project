@@ -6,7 +6,7 @@
 
 #define NUM_SAMPLE 4
 #define NUM_FREQ 2
-#define FREQ_DIFF 250
+#define FREQ_DIFF 100
 #define DEF_FREQ 2500
 
 class FM_TX
@@ -19,10 +19,10 @@ public:
 
 private:
   int delay0;
-  float S[NUM_SAMPLE];
-  float S_DAC[NUM_SAMPLE];
-  int freq[NUM_FREQ];
-  int freqDelay[NUM_FREQ];
+  uint16_t S[NUM_SAMPLE];
+  uint16_t S_DAC[NUM_SAMPLE];
+  uint16_t freq[NUM_FREQ];
+  uint16_t freqDelay[NUM_FREQ];
 
   Adafruit_MCP4725 dac;
 
