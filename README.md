@@ -29,3 +29,5 @@
 -   [Assignment 63](https://docs.google.com/document/d/1lCAKcCvDOUd78t_YZG8W5tjDkQTTrvopiaaOMNXXE0I/edit)
 -   [How to OV7670](https://docs.google.com/document/d/1kdxclTAXJckRb7b2CWud6TY4N25vYgkQhOkC9wr5MgM/edit)
 -   [ฟังธรรมะ](https://www.youtube.com/watch?v=fz7Jxg7Hbkg)
+-   [กายบริหาร](https://www.youtube.com/watch?v=lm5yQ1foeME)
+-   [Assignment Report](https://docs.google.com/document/d/1f3Uy-DK4XmCSzhgOqvb94LPenNCDdLIkHju2jna-BZ8/edit)
