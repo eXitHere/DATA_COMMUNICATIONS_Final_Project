@@ -21,7 +21,7 @@
         return display_in_document;
       }
 
-      var source1 = new EventSource("/stream1");
+      var source1 = new EventSource("http://192.168.88.17:5000/stream1");
       var source2 = new EventSource("/stream2");
       var source3 = new EventSource("/stream3");
       source1.onmessage = getFunction(1);
@@ -45,7 +45,7 @@
             redirect: "follow",
           };
           setTimeout(function() {
-            fetch(`${settings.target}/senddata`, requestOptions)
+            fetch(`${settings.target[e]}/senddata`, requestOptions)
             .then((response) => response.text())
             .then((result) => {
               loaddingID.style.display = "none";
@@ -114,7 +114,7 @@
             <div class="wrapper-textarea" id="wt1">
               <div id="textarea1" class="textarea"></div>
               <div class="btn-fullscreen">
-                <button onclick="fullscreen(1)" id="full1">^</button>
+                <button onclick="fullscreen(0)" id="full1">^</button>
               </div>
             </div>
           </div>
@@ -178,7 +178,7 @@
             <div class="wrapper-textarea" id="wt1">
               <div id="textarea3" class="textarea"></div>
               <div class="btn-fullscreen">
-                <button onclick="fullscreen(1)" id="full3">^</button>
+                <button onclick="fullscreen(2)" id="full3">^</button>
               </div>
             </div>
           </div>

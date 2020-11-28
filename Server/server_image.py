@@ -1,10 +1,10 @@
+import cv2
 from PIL import Image
 import sys
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import jsonpickle
-import cv2
 import time
 import json
 from flask_cors import CORS
@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 model = []
 
-for i in range(4, 9):
+for i in range(5, 10):
     model.append(load_model('./ML/model_datacom_{}'.format(str(i))))
 
 
@@ -26,9 +26,11 @@ def process(image_, model_idx):
 
 def process_image(img):
     ans = []
+    ans.append(process(img, 0)[0])
     for i in range(5):
         ans.append(process(img, i)[0])
     ans.append(ans[len(ans) - 1])
+    ans.append(ans[len(ans) - 2])
     print("answer from 5 model:", ans)
     return max(ans, key=ans.count)
 

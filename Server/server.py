@@ -11,6 +11,7 @@ from flask_cors import CORS
 from Image_processing import *
 from read_mode import get_mode
 from show_led import led_freestyle, setup_pin
+from termcolor import colored
 
 #define zone
 PROCESS_WITH_ML = 0
@@ -34,6 +35,14 @@ send_msg_Arduono2 = ""
 
 processing_mode = 0  # 0: ML , 1: if else
 
+pattern_led = [0, 0, 0]
+
+travel_capture_thread = None
+
+storage_image_id = [-1, -1, -1]
+
+focus_idx = -1
+
 
 def serial_arudino2():
     global stop_threads
@@ -41,51 +50,95 @@ def serial_arudino2():
     global string_recever_arduino2
     global send_msg_Arduono2
     global serial_Arduino2
+    global travel_capture_thread
+    global storage_image_id
+    global focus_idx
     if not serial_Arduino2.isOpen():
         serial_Arduino2.open()
-    #try:
-    serialString = ""
-    while True:
-        #print("In thread!")
-        while not serial_Arduino2.isOpen():
-            #print("Serial 2 offline")
-            time.sleep(0.1)
-        #print("Test")
-        if serial_Arduino2.isOpen():
-            try:
-                if send_msg_Arduono2 != "":
-                    #print("Writed", send_msg_Arduono2)
-                    serial_Arduino2.write(
-                        str.encode('{0}'.format(send_msg_Arduono2)))
-                    send_msg_Arduono2 = ""
-                if serial_Arduino2.inWaiting():
-                    serialString = serial_Arduino2.readline()
-                    #print("Data in serial", serialString)
-                    serial_Arduino2.flush()
-                    if serialString[0] != '\r\n':
-                        temp = serialString.decode('Ascii').replace('\r\n', '')
-                        string_recever_arduino2.append(temp)
-            except:
+    try:
+        serialString = ""
+        while True:
+            #print("In thread!")
+            while not serial_Arduino2.isOpen():
+                #print("Serial 2 offline")
+                if stop_threads:
+                    break
                 time.sleep(0.1)
-        if stop_threads:
-            break
+            #print("Test")
+            if serial_Arduino2.isOpen():
+                try:
+                    #print("Thread ready!")
+                    if send_msg_Arduono2 != "":
+                        #print("Writed", send_msg_Arduono2)
+                        serial_Arduino2.write(
+                            str.encode('{0}\n'.format(send_msg_Arduono2)))
+                        print(send_msg_Arduono2, "Writed: ",
+                              str.encode('{0}\n'.format(send_msg_Arduono2)))
+                        send_msg_Arduono2 = ""
+                    if serial_Arduino2.inWaiting():
+                        #print("Have data!")
+                        serialString = serial_Arduino2.readline()
+                        print(
+                            colored(("Data in serial", serialString),
+                                    "magenta"))
+                        serial_Arduino2.flush()
+                        if serialString[0] != '\r\n':
+                            temp = serialString.decode('Ascii').replace(
+                                '\n', '')
+                            print(colored(str(storage_image_id), "red"))
+                            if "capture" in temp:
+                                #print("Start capture")
+                                if not travel_capture_thread.isAlive():
+                                    storage_image_id = [-1, -1, -1]
+                                    travel_capture_thread = threading.Thread(
+                                        target=travel_capture)
+                                    travel_capture_thread.start()
+                            elif str(storage_image_id) != '[-1, -1, -1]':
+                                #print("Do this")
+                                #print(temp)
+                                try:
+                                    if (temp[21] >= '0' and temp[21] <= '9'
+                                        ) or (temp[21] >= 'a'
+                                              and temp[21] <= 'f'):
+                                        #print("Fucking Doing")
+                                        focus_idx = storage_image_id.index(
+                                            int(temp[21], 16))
+                                        if not travel_capture_thread.isAlive():
+                                            travel_capture_thread = threading.Thread(
+                                                target=travel_capture)
+                                            travel_capture_thread.start()
+                                except:
 
-    # except:
-    #     pass
-    # finally:
-    #     print("Something wrong!")
-    #     serial_Arduino2.close()
-    #     if not serial_Arduino2.isOpen():
-    #         print("Program,Serial comm is closed")
+                                    #print("Err")
+                                    pass
+                            string_recever_arduino2.append(temp)
+                except:
+                    time.sleep(0.1)
+            if stop_threads:
+                break
+
+    except:
+        pass
+    finally:
+        print("Something wrong!")
+        serial_Arduino2.close()
+        if not serial_Arduino2.isOpen():
+            print("Program,Serial comm is closed")
 
 
 @app.route('/senddata', methods=['POST'])
 def senddata():
     global send_msg_Arduono2
+    global storage_image_id
+    global travel_capture_thread
     command = request.get_json()['data']
     #print(command)
     if command == 'TEST':
-        travel_capture()
+        if not travel_capture_thread.isAlive():
+            storage_image_id = [-1, -1, -1]
+            travel_capture_thread = threading.Thread(target=travel_capture)
+            travel_capture_thread.start()
+        #travel_capture_thread.start()
     else:
         send_msg_Arduono2 = command
     return 'OK'
@@ -98,7 +151,8 @@ def stream():
         while True:
             global string_recever_arduino2
             for idx in range(len(string_recever_arduino2)):
-                yield "data:" + string_recever_arduino2.pop(0) + '\n\n'
+                if len(string_recever_arduino2):
+                    yield "data:" + string_recever_arduino2.pop(0) + '\n\n'
             time.sleep(0.1)
 
     return Response(read_process(), mimetype='text/event-stream')
@@ -141,21 +195,64 @@ def init_Serial():
 
 
 def travel_capture():
+    global focus_idx
     global send_msg_Arduono2
     global serial_Arduino3
     global serial_Arduino2
     global processing_mode
+    global pattern_led
+    global storage_image_id
     processing_mode = get_mode()
     DEGREE = ["L", "M", "R"]
     ans = []
-    for j in range(3):
+    loadding_led()
+    if focus_idx == -1:
+        for j in range(3):
+            if serial_Arduino3.isOpen():
+                serial_Arduino3.close()
+                #print("Close port 3")
+            if not serial_Arduino2.isOpen():
+                serial_Arduino2.open()
+                #print("Open port 3")
+            send_msg_Arduono2 = DEGREE[j]
+            #print("before delay")
+            time.sleep(2)
+            #print("After delay")
+            if serial_Arduino2.isOpen():
+                #print("Close port 2")
+                serial_Arduino2.close()
+            if not serial_Arduino3.isOpen():
+                serial_Arduino3.open()
+                #print("Open port 3")
+            if processing_mode == PROCESS_WITH_ML:
+                print(colored("processing with ML", "yellow"))
+                code, pattern = process_with_ml(serial_Arduino3, DEGREE[j],
+                                                config['server_processing'])
+            elif processing_mode == PROCESS_WITH_IFELSE:
+                print(colored('processing with if else', "yellow"))
+                code, pattern = process_with_ifelse(serial_Arduino3, DEGREE[j])
+            ans.append(code)
+            print(colored(code, "magenta"))
+            pattern_led[2 - j] = int(code)
+            #print(colored(pattern_led, "blue"))
+        if serial_Arduino3.isOpen():
+            serial_Arduino3.close()
+        if not serial_Arduino2.isOpen():
+            serial_Arduino2.open()
+        storage_image_id = ans
+        print(colored(("Storage image id: ", storage_image_id), "cyan"))
+        send_msg_Arduono2 = 'X' + ''.join([hex(x)[2:] for x in ans])
+        print(colored("Send", "green"), colored(send_msg_Arduono2, "cyan"),
+              colored("To arduino1", "green"))
+        #print(ans)
+    else:  ## forcus on index
         if serial_Arduino3.isOpen():
             serial_Arduino3.close()
             #print("Close port 3")
         if not serial_Arduino2.isOpen():
             serial_Arduino2.open()
             #print("Open port 3")
-        send_msg_Arduono2 = DEGREE[j]
+        send_msg_Arduono2 = DEGREE[focus_idx]
         #print("before delay")
         time.sleep(2)
         #print("After delay")
@@ -166,16 +263,38 @@ def travel_capture():
             serial_Arduino3.open()
             #print("Open port 3")
         if processing_mode == PROCESS_WITH_ML:
-            print("processing with ML")
-            code, pattern = process_with_ml(serial_Arduino3, DEGREE[j],
+            print(colored("processing with ML", "yellow"))
+            code, pattern = process_with_ml(serial_Arduino3, DEGREE[focus_idx],
                                             config['server_processing'])
         elif processing_mode == PROCESS_WITH_IFELSE:
-            print('processing with if else')
-            code, pattern = process_with_ifelse(serial_Arduino3, DEGREE[j])
+            print(colored('processing with if else', "yellow"))
+            code, pattern = process_with_ifelse(serial_Arduino3,
+                                                DEGREE[focus_idx])
         ans.append(code)
-        print(pattern)
+        print(colored(pattern, "magenta"))
+        pattern_led[2 - focus_idx] = int(code)
+        #print(colored(pattern_led, "blue"))
+        if serial_Arduino3.isOpen():
+            serial_Arduino3.close()
+        if not serial_Arduino2.isOpen():
+            serial_Arduino2.open()
+        send_msg_Arduono2 = encode_dec_to_data(pattern)
+        print(colored("Send", "green"), colored(send_msg_Arduono2, "cyan"),
+              colored("To arduino1", "green"))
+    time.sleep(1)
+    focus_idx = -1
+    send_msg_Arduono2 = 'C'
 
-    print(ans)
+
+def encode_dec_to_data(arr):
+    tmp = ''
+    arr = arr[0] + arr[1] + arr[2] + arr[3]
+    #print(arr)
+    for x in arr:
+        #print(x, str(chr(x)))
+        tmp += str(chr(x))
+    #print(str.encode(tmp))
+    return '*' + tmp + '*'
 
 
 def init_Camera():
@@ -191,19 +310,26 @@ def serial_arudino3():
     pass
 
 
+def loadding_led():
+    global pattern_led
+    pattern_led[0] = 100
+    pattern_led[1] = 100
+    pattern_led[2] = 100
+
+
 if __name__ == "__main__":
     setup_pin()
-    stack = []
     if processing_mode == PROCESS_WITH_IFELSE:
-        print("PROCESS WITH IF ELSE")
+        print(colored("PROCESS WITH IF ELSE", "yellow"))
     else:
-        print("PROCESS WITH ML")
+        print(colored("PROCESS WITH ML", "yellow"))
     loadConfig()
     init_Serial()
-    thread_Serial3 = threading.Thread(target=serial_arudino3)
+    travel_capture_thread = threading.Thread(target=travel_capture)
     thread_Serial2 = threading.Thread(target=serial_arudino2)
-    thread_for_show_led = threading.Thread(target=led_freestyle)
-    thread_Serial3.start()
+    loadding_led()
+    thread_for_show_led = threading.Thread(target=led_freestyle,
+                                           args=(pattern_led, stop_threads))
     thread_Serial2.start()
     thread_for_show_led.start()
     try:

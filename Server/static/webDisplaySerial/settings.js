@@ -1,3 +1,3 @@
 const settings = {
-    target: 'http://localhost:5000'
+    target: ['http://192.168.88.17:5000', 'http://192.168.88.19:5000', 'http://192.168.88.19:5000']
 };
