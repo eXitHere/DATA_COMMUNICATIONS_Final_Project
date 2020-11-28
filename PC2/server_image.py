@@ -11,10 +11,8 @@ from flask_cors import CORS
 from flask import Flask, Response, redirect, request, url_for, jsonify, send_file, render_template
 app = Flask(__name__)
 CORS(app)
-model = []
 
-for i in range(5, 10):
-    model.append(load_model('./ML/model_datacom_{}'.format(str(i))))
+model = load_model('./ML/model_datacom')
 
 
 def process(image_, model_idx):
